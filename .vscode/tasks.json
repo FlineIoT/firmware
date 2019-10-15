@@ -7,7 +7,7 @@
             "type": "shell",
             "label": "make all",
             "command": "make",
-            "args": ["-j4", "all"],
+            "args": ["-j8", "all"],
             "options": {
               "cwd": "${workspaceRoot}/fline/app/armgcc/"
             },
@@ -15,6 +15,16 @@
                 "kind": "build",
                 "isDefault": true
             }
+        },
+        {
+            "type": "shell",
+            "label": "flash",
+            "command": "make",
+            "args": ["flash"],
+            "options": {
+              "cwd": "${workspaceRoot}/fline/app/armgcc/"
+            },
+            "group": "none"
         },
         {
             "type": "shell",
