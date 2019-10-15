@@ -77,6 +77,7 @@
 #include "nrf_ble_gatt.h"
 #include "nrf_ble_qwr.h"
 #include "nrf_pwr_mgmt.h"
+#include "app_scheduler.h"
 
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
@@ -108,6 +109,9 @@
 #define SEC_PARAM_OOB                   0                                       /**< Out Of Band data not available. */
 #define SEC_PARAM_MIN_KEY_SIZE          7                                       /**< Minimum encryption key size. */
 #define SEC_PARAM_MAX_KEY_SIZE          16                                      /**< Maximum encryption key size. */
+
+#define SCHED_MAX_EVENT_DATA_SIZE       APP_TIMER_SCHED_EVENT_DATA_SIZE             /**< Maximum size of scheduler events. */
+#define SCHED_QUEUE_SIZE                20                                          /**< Maximum number of events in the scheduler queue. */
 
 #define DEAD_BEEF                       0xDEADBEEF                              /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
 
@@ -659,6 +663,14 @@ static void log_init(void)
 }
 
 
+/**@brief Function for the Event Scheduler initialization.
+ */
+static void scheduler_init(void)
+{
+    APP_SCHED_INIT(SCHED_MAX_EVENT_DATA_SIZE, SCHED_QUEUE_SIZE);
+}
+
+
 /**@brief Function for initializing power management.
  */
 static void power_management_init(void)
@@ -675,6 +687,7 @@ static void power_management_init(void)
  */
 static void idle_state_handle(void)
 {
+    app_sched_execute();
     if (NRF_LOG_PROCESS() == false)
     {
         nrf_pwr_mgmt_run();
@@ -712,6 +725,7 @@ int main(void)
     buttons_leds_init(&erase_bonds);
     power_management_init();
     ble_stack_init();
+    scheduler_init();
     gap_params_init();
     gatt_init();
     advertising_init();
