@@ -152,6 +152,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/nfc/t4t_parser/apdu \
   $(SDK_ROOT)/components/libraries/util \
   ../config \
+  ../inc \
   $(SDK_ROOT)/components/libraries/usbd/class/cdc \
   $(SDK_ROOT)/components/libraries/csense \
   $(SDK_ROOT)/components/libraries/balloc \
@@ -224,7 +225,7 @@ OPT = -O3 -g3
 
 # C flags common to all targets
 CFLAGS += $(OPT)
-CFLAGS += -DBOARD_PCA10040
+CFLAGS += -DBOARD_FLINE
 CFLAGS += -DCONFIG_GPIO_AS_PINRESET
 CFLAGS += -DFLOAT_ABI_HARD
 CFLAGS += -DNRF52
@@ -250,7 +251,7 @@ ASMFLAGS += -g3
 ASMFLAGS += -mcpu=cortex-m4
 ASMFLAGS += -mthumb -mabi=aapcs
 ASMFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
-ASMFLAGS += -DBOARD_PCA10040
+ASMFLAGS += -DBOARD_FLINE
 ASMFLAGS += -DCONFIG_GPIO_AS_PINRESET
 ASMFLAGS += -DFLOAT_ABI_HARD
 ASMFLAGS += -DNRF52
