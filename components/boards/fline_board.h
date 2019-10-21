@@ -37,8 +37,8 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef PCA10040_H
-#define PCA10040_H
+#ifndef FLINE_BOARD_H
+#define FLINE_BOARD_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,7 +47,7 @@ extern "C" {
 #include "nrf_gpio.h"
 
 // LEDs definitions for PCA10040
-#define LEDS_NUMBER    4
+#define LEDS_NUMBER    0
 
 #define LED_START      17
 #define LED_1          17
@@ -169,9 +169,22 @@ extern "C" {
 #define ARDUINO_A4_PIN              30    // Analog channel 4
 #define ARDUINO_A5_PIN              31    // Analog channel 5
 
+#define S2LP_SDN_PIN                ARDUINO_7_PIN   // 18 
+
+#define S2LP_SCLK_PIN               ARDUINO_3_PIN   // 14
+#define S2LP_CS_PIN                 ARDUINO_A1_PIN  // 4
+#define S2LP_MISO_PIN               ARDUINO_12_PIN  // 24
+#define S2LP_MOSI_PIN               ARDUINO_11_PIN  // 23
+
+#define S2LP_GPIO0_PIN              ARDUINO_A0_PIN  // 3
+#define S2LP_GPIO1_PIN              ARDUINO_A2_PIN  // 28
+#define S2LP_GPIO2_PIN              ARDUINO_A3_PIN  // 29
+#define S2LP_GPIO3_PIN              ARDUINO_A5_PIN  // 31
+
+#define M2S_GPIO_IRQ_PIN            S2LP_GPIO3_PIN
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // PCA10040_H
+#endif // FLINE_BOARD_H
