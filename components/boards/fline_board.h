@@ -92,6 +92,17 @@ extern "C" {
 #define RTS_PIN_NUMBER 5
 #define HWFC           true
 
+#define SPIM0_SS_ACC_PIN   3  // SPI Slave Select (accelerometer)
+#define SPIM0_SS_HUMI_PIN  31  // SPI Slave Select (BME280)
+#define INT_ACC1_PIN       17  // Accelerometer interrupt 1
+#define INT_ACC2_PIN 	   18 // Accelerometer interrupt 2
+
+/* LED */
+#define LED_RED 26
+#define LED_GREEN 2 
+#define LED_BLUE 27
+
+
 #define SPIS_MISO_PIN   28  // SPI MISO signal.
 #define SPIS_CSN_PIN    12  // SPI CSN signal.
 #define SPIS_MOSI_PIN   25  // SPI MOSI signal.
