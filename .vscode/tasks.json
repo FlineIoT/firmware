@@ -5,7 +5,7 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "make all",
+            "label": "app compile",
             "command": "make",
             "args": ["-j8", "all"],
             "options": {
@@ -18,7 +18,7 @@
         },
         {
             "type": "shell",
-            "label": "flash",
+            "label": "app flash",
             "command": "make",
             "args": ["flash"],
             "options": {
@@ -28,7 +28,7 @@
         },
         {
             "type": "shell",
-            "label": "clean",
+            "label": "app clean",
             "command": "make",
             "args": ["clean"],
             "options": {
@@ -36,6 +36,15 @@
             },
             "group": "none"
         },
-
+        {
+          "type": "shell",
+          "label": "bootloader compile",
+          "command": "make",
+          "args": ["-j8", "all"],
+          "options": {
+            "cwd": "${workspaceRoot}/fline/bootloader/armgcc/"
+          },
+          "group": "none"
+      },
     ]
 }
