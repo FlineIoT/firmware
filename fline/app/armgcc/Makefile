@@ -57,14 +57,13 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/bsp/bsp.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp_btn_ble.c \
   $(PROJ_DIR)/main.c \
+  $(PROJ_DIR)/sigfox.c \
   $(PROJ_DIR)/../common/drivers/ble_datas.c \
   $(PROJ_DIR)/../common/drivers/SFM10R1.c \
   $(PROJ_DIR)/../common/drivers/bme280.c \
   $(PROJ_DIR)/../common/drivers/lis2dh12.c \
   $(PROJ_DIR)/../common/drivers/esp8266.c \
   $(PROJ_DIR)/../common/drivers/ui.c \
-  $(PROJ_DIR)/../common/drivers/spi.c \
-  $(PROJ_DIR)/../common/drivers/sigfox.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
