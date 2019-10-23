@@ -1,12 +1,12 @@
-PROJECT_NAME     := ble_app_template_pca10040_s132
-TARGETS          := nrf52832_xxaa
+PROJECT_NAME     := ble_app_pca10040_s132
+TARGETS          := app_debug
 OUTPUT_DIRECTORY := _build
 
 SDK_ROOT := ../../..
 PROJ_DIR := ..
 
-$(OUTPUT_DIRECTORY)/nrf52832_xxaa.out: \
-  LINKER_SCRIPT  := ble_app_template_gcc_nrf52.ld
+$(OUTPUT_DIRECTORY)/app_debug.out: \
+  LINKER_SCRIPT  := app_gcc_nrf52.ld
 
 # Source files common to all targets
 SRC_FILES += \
@@ -272,10 +272,10 @@ LDFLAGS += -Wl,--gc-sections
 # use newlib in nano version
 LDFLAGS += --specs=nano.specs
 
-nrf52832_xxaa: CFLAGS += -D__HEAP_SIZE=8192
-nrf52832_xxaa: CFLAGS += -D__STACK_SIZE=8192
-nrf52832_xxaa: ASMFLAGS += -D__HEAP_SIZE=8192
-nrf52832_xxaa: ASMFLAGS += -D__STACK_SIZE=8192
+app_debug: CFLAGS += -D__HEAP_SIZE=0 -D__STACK_SIZE=8192
+app_debug: ASMFLAGS += -D__HEAP_SIZE=0 -D__STACK_SIZE=8192
+app_debug: generate_bl_settings
+app_debug: OUTPUT_FILENAME := app_debug
 
 # Add standard libraries at the very end of the linker input, after all objects
 # that may need symbols provided by these libraries.
@@ -285,12 +285,12 @@ LIB_FILES += -lc -lnosys -lm
 .PHONY: default help
 
 # Default target - first one defined
-default: nrf52832_xxaa
+default: app_debug
 
 # Print all targets that can be built
 help:
 	@echo following targets are available:
-	@echo		nrf52832_xxaa
+	@echo		app_debug
 	@echo		flash_softdevice
 	@echo		sdk_config - starting external tool for editing sdk_config.h
 	@echo		flash      - flashing binary
@@ -304,11 +304,19 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 
 .PHONY: flash flash_softdevice erase
 
+# Generate Bootloader settings
+BL_SETTINGS_VERSION := 2
+APP_VERSION := 1
+generate_bl_settings:
+	nrfutil settings generate --family NRF52 --application $(OUTPUT_DIRECTORY)/$(OUTPUT_FILENAME).hex --application-version $(APP_VERSION) --bootloader-version 1 --bl-settings-version $(BL_SETTINGS_VERSION) $(OUTPUT_DIRECTORY)/$(OUTPUT_FILENAME)_bl_settings.hex
+
 # Flash the program
-flash: default
-	@echo Flashing: $(OUTPUT_DIRECTORY)/nrf52832_xxaa.hex
-	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/nrf52832_xxaa.hex --sectorerase
+flash: $(MAKECMDGOALS)
+	@echo Flashing: $(OUTPUT_DIRECTORY)/$<.hex
+	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/$<.hex --sectorerase
+	nrfjprog --program $(OUTPUT_DIRECTORY)/$<_bl_settings.hex -f nrf52 --sectorerase
 	nrfjprog -f nrf52 --reset
+	@echo "\033[32m$<.hex has been flashed\033[0m"
 
 # Flash softdevice
 flash_softdevice:
