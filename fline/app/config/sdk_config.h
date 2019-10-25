@@ -11531,7 +11531,14 @@
 #define PM_BLE_OBSERVER_PRIO 1
 #endif
 
+// <o> BLE_FLS_BLE_OBSERVER_PRIO
+// <i> Priority with which BLE events are dispatched to the Equisense service.
+
+#ifndef BLE_FLS_BLE_OBSERVER_PRIO
+#define BLE_FLS_BLE_OBSERVER_PRIO 2
+#endif
 // </h> 
+
 //==========================================================
 
 // </h> 
