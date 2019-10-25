@@ -208,7 +208,7 @@ endef
 # $2 include paths container file
 # $3 build goal name
 define prepare_build
-$(eval DEPENDENCIES :=) \
+$(eval DEPENDENCIES := prepare_version) \
 $(eval $(3): \
   $(call get_object_files, $(1), $(2), \
     $(SRC_FILES) $(call target_specific, SRC_FILES, $(1)))) \
@@ -288,7 +288,7 @@ LD_INPUT               = $^ $(LIB_FILES)
 endif
 
 # Link object files
-%.out:
+%.out: $(PROJ_DIR)/inc/version.h
 	$(info $(call PROGRESS,Linking target: $@))
 	$(NO_ECHO)$(GENERATE_LD_INPUT_FILE)
 	$(NO_ECHO)$(CC) $(LDFLAGS) $(LD_INPUT) -Wl,-Map=$(@:.out=.map) -o $@

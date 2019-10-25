@@ -78,6 +78,7 @@
 #include "nrf_ble_qwr.h"
 #include "nrf_pwr_mgmt.h"
 #include "app_scheduler.h"
+#include "version.h"
 
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
@@ -734,7 +735,7 @@ int main(void)
     peer_manager_init();
 
     // Start execution.
-    NRF_LOG_INFO("Template example started.");
+    NRF_LOG_INFO("Fline v%u,%u,%u", FIRMWARE_VERSION_MAJOR, FIRMWARE_VERSION_MINOR, FIRMWARE_VERSION_PATCH);
     application_timers_start();
 
     advertising_start(erase_bonds);

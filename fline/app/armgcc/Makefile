@@ -8,6 +8,12 @@ PROJ_DIR := ..
 $(OUTPUT_DIRECTORY)/app_debug.out: \
   LINKER_SCRIPT  := app_gcc_nrf52.ld
 
+# Get version from version.ini
+APP_MAJOR = $(shell sed -n -e 's/^\s*major\s*=\s*//p' $(SDK_ROOT)/version.ini)
+APP_MINOR = $(shell sed -n -e 's/^\s*minor\s*=\s*//p' $(SDK_ROOT)/version.ini)
+APP_PATCH = $(shell sed -n -e 's/^\s*patch\s*=\s*//p' $(SDK_ROOT)/version.ini)
+APP_VERSION = $(shell expr $(APP_MAJOR) \* 65536 + $(APP_MINOR) \* 256 + $(APP_PATCH))
+
 # Source files common to all targets
 SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52.S \
@@ -80,7 +86,7 @@ SRC_FILES += \
   $(SDK_ROOT)/external/utf_converter/utf.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c \
-  $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c \
+  $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c 
 
 # Include folders common to all targets
 INC_FOLDERS += \
@@ -272,10 +278,19 @@ LDFLAGS += -Wl,--gc-sections
 # use newlib in nano version
 LDFLAGS += --specs=nano.specs
 
+# Get the file in the branch referencing the commit SHA
+current := $(shell cut -c6- $(SDK_ROOT)/.git/HEAD)
+# version.h regenerated only if new commit or version.ini has changed.
+$(PROJ_DIR)/inc/version.h: $(SDK_ROOT)/.git/${current} $(SDK_ROOT)/version.ini
+	@echo Preparing version $(APP_MAJOR).$(APP_MINOR).$(APP_PATCH)
+	python $(SDK_ROOT)/utils/code/gen_version.py -v $(APP_MAJOR).$(APP_MINOR).$(APP_PATCH)
+
+prepare_version: $(PROJ_DIR)/inc/version.h
+
 app_debug: CFLAGS += -D__HEAP_SIZE=0 -D__STACK_SIZE=8192
 app_debug: ASMFLAGS += -D__HEAP_SIZE=0 -D__STACK_SIZE=8192
-app_debug: generate_bl_settings
 app_debug: OUTPUT_FILENAME := app_debug
+app_debug: generate_bl_settings
 
 # Add standard libraries at the very end of the linker input, after all objects
 # that may need symbols provided by these libraries.
@@ -306,7 +321,6 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 
 # Generate Bootloader settings
 BL_SETTINGS_VERSION := 2
-APP_VERSION := 1
 generate_bl_settings:
 	nrfutil settings generate --family NRF52 --application $(OUTPUT_DIRECTORY)/$(OUTPUT_FILENAME).hex --application-version $(APP_VERSION) --bootloader-version 1 --bl-settings-version $(BL_SETTINGS_VERSION) $(OUTPUT_DIRECTORY)/$(OUTPUT_FILENAME)_bl_settings.hex
 

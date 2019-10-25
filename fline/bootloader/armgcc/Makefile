@@ -1,11 +1,13 @@
 PROJECT_NAME     := secure_bootloader_ble_s132_pca10040
-TARGETS          := nrf52832_xxaa_s132
+TARGETS          := bootloader_debug
 OUTPUT_DIRECTORY := _build
 
 SDK_ROOT := ../../..
 PROJ_DIR := ..
 
-$(OUTPUT_DIRECTORY)/nrf52832_xxaa_s132.out: \
+BL_VERSION = $(shell sed -n -e 's/^\s*bl\s*=\s*//p' $(SDK_ROOT)/version.ini)
+
+$(OUTPUT_DIRECTORY)/bootloader_debug.out: \
   LINKER_SCRIPT  := secure_bootloader_gcc_nrf52.ld
 
 # Source files common to all targets
@@ -45,7 +47,7 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_hash.c \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_init.c \
   $(SDK_ROOT)/components/libraries/crypto/nrf_crypto_shared.c \
-  $(PROJ_DIR)/../dfu_public_key.c \
+  $(PROJ_DIR)/dfu_req_handling/dfu_public_key.c \
   $(PROJ_DIR)/main.c \
   $(SDK_ROOT)/components/ble/common/ble_srv_common.c \
   $(SDK_ROOT)/components/libraries/bootloader/nrf_bootloader.c \
@@ -127,6 +129,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/external/fprintf \
   $(SDK_ROOT)/components/libraries/crypto \
   ../config \
+  ../inc \
   $(SDK_ROOT)/components/libraries/crypto/backend/optiga \
   $(SDK_ROOT)/components/libraries/scheduler \
   $(SDK_ROOT)/modules/nrfx/hal \
@@ -219,8 +222,12 @@ LDFLAGS += -Wl,--gc-sections
 # use newlib in nano version
 LDFLAGS += --specs=nano.specs
 
-nrf52832_xxaa_s132: CFLAGS += -D__HEAP_SIZE=0
-nrf52832_xxaa_s132: ASMFLAGS += -D__HEAP_SIZE=0
+prepare_version:
+	python $(SDK_ROOT)/utils/code/gen_version_bl.py -v $(BL_VERSION)
+
+bootloader_debug: CFLAGS += -D__HEAP_SIZE=0
+bootloader_debug: ASMFLAGS += -D__HEAP_SIZE=0
+bootloader_debug: OUTPUT_FILENAME := bootloader_debug
 
 # Add standard libraries at the very end of the linker input, after all objects
 # that may need symbols provided by these libraries.
@@ -230,12 +237,12 @@ LIB_FILES += -lc -lnosys -lm
 .PHONY: default help
 
 # Default target - first one defined
-default: nrf52832_xxaa_s132
+default: bootloader_debug
 
 # Print all targets that can be built
 help:
 	@echo following targets are available:
-	@echo		nrf52832_xxaa_s132
+	@echo		bootloader_debug
 	@echo		flash_softdevice
 	@echo		sdk_config - starting external tool for editing sdk_config.h
 	@echo		flash      - flashing binary
@@ -250,10 +257,10 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 .PHONY: flash flash_softdevice erase
 
 # Flash the program
-flash: default
-	@echo Flashing: $(OUTPUT_DIRECTORY)/nrf52832_xxaa_s132.hex
-	mergehex -m $(SDK_ROOT)/components/softdevice/s132/hex/s132_nrf52_6.1.1_softdevice.hex $(OUTPUT_DIRECTORY)/nrf52832_xxaa_s132.hex --output $(OUTPUT_DIRECTORY)/sd_bl.hex
-	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/sd_bl.hex --chiperase
+flash: $(MAKECMDGOALS)
+	@echo Flashing: $(OUTPUT_DIRECTORY)/$<.hex
+	mergehex -m $(SDK_ROOT)/components/softdevice/s132/hex/s132_nrf52_6.1.1_softdevice.hex $(OUTPUT_DIRECTORY)/$<.hex --output $(OUTPUT_DIRECTORY)/sd_$<.hex
+	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/sd_$<.hex --chiperase
 	nrfjprog -f nrf52 --reset
 
 # Flash softdevice

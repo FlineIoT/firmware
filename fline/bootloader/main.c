@@ -60,6 +60,7 @@
 #include "app_error_weak.h"
 #include "nrf_bootloader_info.h"
 #include "nrf_delay.h"
+#include "version.h"
 
 static void on_error(void)
 {
@@ -137,6 +138,7 @@ int main(void)
     (void) NRF_LOG_INIT(nrf_bootloader_dfu_timer_counter_get);
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 
+    NRF_LOG_INFO("Bootloader v%u", BL_REV);
     NRF_LOG_INFO("Inside main");
 
     ret_val = nrf_bootloader_init(dfu_observer);

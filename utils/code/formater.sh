@@ -1,0 +1,2 @@
+#!/bin/sh
+clang-format-3.8 -style="{BasedOnStyle: Webkit, IndentWidth: 4, AllowShortFunctionsOnASingleLine: None, KeepEmptyLinesAtTheStartOfBlocks: false, BreakBeforeBraces: Allman, AlignConsecutiveAssignments: true}" "$@"
