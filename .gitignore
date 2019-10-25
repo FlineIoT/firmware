@@ -2,3 +2,5 @@ fline/app/armgcc/_build/
 fline/bootloader/armgcc/_build/
 *.d
 *.o
+
+.DS_Store
