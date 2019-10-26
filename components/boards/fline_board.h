@@ -37,8 +37,8 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
-#ifndef PCA10040_H
-#define PCA10040_H
+#ifndef FLINE_BOARD_H
+#define FLINE_BOARD_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,7 +47,7 @@ extern "C" {
 #include "nrf_gpio.h"
 
 // LEDs definitions for PCA10040
-#define LEDS_NUMBER    4
+#define LEDS_NUMBER    0
 
 #define LED_START      17
 #define LED_1          17
@@ -91,6 +91,17 @@ extern "C" {
 #define CTS_PIN_NUMBER 7
 #define RTS_PIN_NUMBER 5
 #define HWFC           true
+
+#define SPIM0_SS_ACC_PIN   3  // SPI Slave Select (accelerometer)
+#define SPIM0_SS_HUMI_PIN  31  // SPI Slave Select (BME280)
+#define INT_ACC1_PIN       17  // Accelerometer interrupt 1
+#define INT_ACC2_PIN 	   18 // Accelerometer interrupt 2
+
+/* LED */
+#define LED_RED 26
+#define LED_GREEN 2 
+#define LED_BLUE 27
+
 
 #define SPIS_MISO_PIN   28  // SPI MISO signal.
 #define SPIS_CSN_PIN    12  // SPI CSN signal.
@@ -169,9 +180,22 @@ extern "C" {
 #define ARDUINO_A4_PIN              30    // Analog channel 4
 #define ARDUINO_A5_PIN              31    // Analog channel 5
 
+#define S2LP_SDN_PIN                ARDUINO_7_PIN   // 18 
+
+#define S2LP_SCLK_PIN               ARDUINO_3_PIN   // 14
+#define S2LP_CS_PIN                 ARDUINO_A1_PIN  // 4
+#define S2LP_MISO_PIN               ARDUINO_12_PIN  // 24
+#define S2LP_MOSI_PIN               ARDUINO_11_PIN  // 23
+
+#define S2LP_GPIO0_PIN              ARDUINO_A0_PIN  // 3
+#define S2LP_GPIO1_PIN              ARDUINO_A2_PIN  // 28
+#define S2LP_GPIO2_PIN              ARDUINO_A3_PIN  // 29
+#define S2LP_GPIO3_PIN              ARDUINO_A5_PIN  // 31
+
+#define M2S_GPIO_IRQ_PIN            S2LP_GPIO3_PIN
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // PCA10040_H
+#endif // FLINE_BOARD_H
