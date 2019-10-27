@@ -6,10 +6,11 @@
 #include "ble.h"
 #include "ble_srv_common.h"
 #include "nrf_sdh_ble.h"
+#include "ble_fls_api.h"
 
 /* clang-format off */
 
-#define FLS_BASE_UUID                  		    {{0x93, 0x3D, 0x01, 0x89, 0x3B, 0x2E, 0x1C, 0xB4, 0xA5, 0x4D, 0xFD, 0xBF, 0x00, 0x00, 0x1C, 0xBC}} /**< Used vendor specific UUID. */
+#define FLS_BASE_UUID                  		    {{0x33, 0x4D, 0x08, 0x89, 0x3F, 0x1E, 0x1A, 0x12, 0xA5, 0x4D, 0xFD, 0xBF, 0x00, 0x00, 0x1C, 0xBC}} /**< Used vendor specific UUID. */
 #define BLE_UUID_FLS_SERVICE 					0x0001                      /**< The UUID of the Fline Service. */
 #define BLE_UUID_FLS_CONTROL_CHARACTERISTIC 	0x0002                      /**< The UUID of the Control Characteristic. */
 #define BLE_UUID_FLS_DATA_CHARACTERISTIC 	    0x0003                      /**< The UUID of the Data Characteristic. */
@@ -25,6 +26,10 @@ static ble_fls_t _name;                                        \
 NRF_SDH_BLE_OBSERVER(_name ## _obs,                             \
                      BLE_FLS_BLE_OBSERVER_PRIO,                \
                      ble_fls_on_ble_evt, &_name)
+
+#define OPCODE_LENGTH   1                                                    /**< Length of opcode inside FLS packet. */
+#define HANDLE_LENGTH   2                                                    /**< Length of handle inside FLS packet. */
+#define MAX_FLS_LEN    (NRF_SDH_BLE_GATT_MAX_MTU_SIZE - OPCODE_LENGTH - HANDLE_LENGTH)  /**< Maximum size of a transmitted packet. */
 
 /* clang-format on */
 
@@ -46,7 +51,7 @@ typedef enum {
 typedef struct
 {
     ble_fls_evt_type_t  evt_type; /**< Type of event. */
-    uint8_t*            ctrl_data;
+    fls_control_t*      ctrl_data;
 } ble_fls_evt_t;
 
 /**@brief FLS event handler type. */
@@ -107,3 +112,4 @@ void ble_fls_on_ble_evt(ble_evt_t const* p_ble_evt, void* p_context);
  */
 uint32_t ble_fls_init(ble_fls_t* p_fls, const ble_fls_init_t* p_fls_init);
 
+void ble_fls_evt_handler(ble_fls_t* p_eqss, ble_fls_evt_t* p_evt);

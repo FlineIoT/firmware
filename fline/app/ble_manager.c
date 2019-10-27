@@ -50,7 +50,7 @@ NRF_BLE_GATT_DEF(m_gatt);                                                       
 NRF_BLE_QWR_DEF(m_qwr);                                                         /**< Context for the Queued Write module.*/
 BLE_ADVERTISING_DEF(m_advertising);                                             /**< Advertising module instance. */
 
-// BLE_FLS_DEF(m_fls);     /* Fline service definition */ 
+BLE_FLS_DEF(m_fls);     /* Fline service definition */ 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
 
 /* YOUR_JOB: Declare all services structure your application is using
@@ -143,6 +143,7 @@ static void services_init(void)
 {
     ret_code_t         err_code;
     nrf_ble_qwr_init_t qwr_init = {0};
+    ble_fls_init_t fls_init;
 
     // Initialize Queued Write Module.
     qwr_init.error_handler = nrf_qwr_error_handler;
@@ -150,28 +151,27 @@ static void services_init(void)
     err_code = nrf_ble_qwr_init(&m_qwr, &qwr_init);
     APP_ERROR_CHECK(err_code);
 
-    /* YOUR_JOB: Add code to initialize the services used by the application.
-       ble_xxs_init_t                     xxs_init;
-       ble_yys_init_t                     yys_init;
+    /***** Fline service *****/
+    memset(&fls_init, 0, sizeof(fls_init));
+    fls_init.evt_handler = ble_fls_evt_handler;
 
-       // Initialize XXX Service.
-       memset(&xxs_init, 0, sizeof(xxs_init));
+    // Here the sec level for the Fline Service
+    // Control characteristic
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(
+        &fls_init.fls_control_attr_md.cccd_write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&fls_init.fls_control_attr_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&fls_init.fls_control_attr_md.write_perm);
 
-       xxs_init.evt_handler                = NULL;
-       xxs_init.is_xxx_notify_supported    = true;
-       xxs_init.ble_xx_initial_value.level = 100;
+    // Processed data characteristic
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(
+        &fls_init.fls_data_attr_md.cccd_write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(
+        &fls_init.fls_data_attr_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(
+        &fls_init.fls_data_attr_md.write_perm);
 
-       err_code = ble_bas_init(&m_xxs, &xxs_init);
-       APP_ERROR_CHECK(err_code);
-
-       // Initialize YYY Service.
-       memset(&yys_init, 0, sizeof(yys_init));
-       yys_init.evt_handler                  = on_yys_evt;
-       yys_init.ble_yy_initial_value.counter = 0;
-
-       err_code = ble_yy_service_init(&yys_init, &yy_init);
-       APP_ERROR_CHECK(err_code);
-     */
+    err_code = ble_fls_init(&m_fls, &fls_init);
+    APP_ERROR_CHECK(err_code);
 }
 
 
@@ -262,7 +262,6 @@ static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 }
 
 
-
 /**@brief Function for handling BLE events.
  *
  * @param[in]   p_ble_evt   Bluetooth stack event.
@@ -276,7 +275,6 @@ void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
     {
         case BLE_GAP_EVT_DISCONNECTED:
             NRF_LOG_INFO("Disconnected.");
-            // LED indication will be changed when advertising starts.
             break;
 
         case BLE_GAP_EVT_CONNECTED:
@@ -357,6 +355,20 @@ static void advertising_start()
     ret_code_t err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
 
     APP_ERROR_CHECK(err_code);
+}
+
+void ble_mgr_disconnect(void)
+{
+    if (m_conn_handle != BLE_CONN_HANDLE_INVALID)
+    {
+        uint32_t ret_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+
+        /* NRF_ERROR_INVALID_STATE is disconnection already in progress */
+        if(ret_code != NRF_SUCCESS && ret_code != NRF_ERROR_INVALID_STATE)
+        {
+            APP_ERROR_CHECK(ret_code);
+        }
+    }
 }
 
 /**@brief Clear bond information from persistent storage.

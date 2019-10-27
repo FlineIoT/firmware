@@ -6,3 +6,4 @@
 
 void ble_mgr_init(void);
 void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context);
+void ble_mgr_disconnect(void);
