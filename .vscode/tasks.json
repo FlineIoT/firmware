@@ -5,9 +5,9 @@
     "tasks": [
         {
             "type": "shell",
-            "label": "app compile",
+            "label": "app_debug compile",
             "command": "make",
-            "args": ["-j8", "all"],
+            "args": ["-j8", "app_debug"],
             "options": {
               "cwd": "${workspaceRoot}/fline/app/armgcc/"
             },
@@ -18,9 +18,9 @@
         },
         {
             "type": "shell",
-            "label": "app flash",
+            "label": "app_debug flash",
             "command": "make",
-            "args": ["flash"],
+            "args": ["flash", "app_debug"],
             "options": {
               "cwd": "${workspaceRoot}/fline/app/armgcc/"
             },
@@ -40,7 +40,7 @@
           "type": "shell",
           "label": "bootloader compile",
           "command": "make",
-          "args": ["-j8", "all"],
+          "args": ["-j8", "bootloader_debug"],
           "options": {
             "cwd": "${workspaceRoot}/fline/bootloader/armgcc/"
           },
