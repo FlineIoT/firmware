@@ -13,8 +13,7 @@ compile_bootloader:
 
 compile_all: compile_app compile_bootloader
 
-# Erase chip
-# Flash softdevice & bootloader
+# Flash softdevice & bootloader, chip will be erased.
 # Flash app
 flash_all: 
 	make -C fline/bootloader/armgcc/ flash bootloader_debug
