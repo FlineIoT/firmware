@@ -737,8 +737,6 @@ int main(void)
     NRF_LOG_INFO("Fline v%u,%u,%u", FIRMWARE_VERSION_MAJOR, FIRMWARE_VERSION_MINOR, FIRMWARE_VERSION_PATCH);
     application_timers_start();
 
-    sigfox_init();
-
     advertising_start(erase_bonds);
 
     // Enter main loop.
