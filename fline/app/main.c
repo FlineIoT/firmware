@@ -20,7 +20,6 @@
 #include "app_scheduler.h"
 #include "ble_manager.h"
 #include "version.h"
-
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
