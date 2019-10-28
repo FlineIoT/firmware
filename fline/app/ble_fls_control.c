@@ -162,6 +162,8 @@ void ble_fls_control_evt_handler(ble_fls_t* p_fls, ble_fls_evt_t* p_evt)
             APP_ERROR_CHECK(err_code);
             err_code = sd_power_gpregret_set(0, BOOTLOADER_DFU_START);
             APP_ERROR_CHECK(err_code);
+
+            NVIC_SystemReset();
             break;
         default:break;
     }
