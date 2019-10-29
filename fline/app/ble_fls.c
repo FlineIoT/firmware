@@ -4,6 +4,7 @@
 #include "nordic_common.h"
 #include "nrf_log.h"
 #include "ble_fls_control.h"
+#include "ble_fls_data.h"
 #include "app_error.h"
 
 /**@brief Function for handling the Connect event.
@@ -24,6 +25,8 @@ static void on_connect(ble_fls_t* p_fls, ble_evt_t* p_ble_evt)
 static void on_disconnect(ble_fls_t* p_fls, ble_evt_t* p_ble_evt)
 {
     p_fls->conn_handle = BLE_CONN_HANDLE_INVALID;
+    ble_fls_control_notify(false);
+    ble_fls_data_notify(false);
 }
 
 /**@brief Function for handling write events to the FLS Data characteristic.
@@ -39,20 +42,16 @@ static void on_fls_data_cccd_write(
         // CCCD written, update notification state
         if (p_fls->evt_handler != NULL)
         {
-            ble_fls_evt_t evt;
-
             if (ble_srv_is_notification_enabled(p_evt_write->data))
             {
-                evt.evt_type = BLE_FLS_EVT_NOTIFICATION_ENABLED;
                 NRF_LOG_INFO("Subscribed to notifications on Data char");
+                ble_fls_data_notify(true);
             }
             else
             {
-                evt.evt_type = BLE_FLS_EVT_NOTIFICATION_DISABLED;
                 NRF_LOG_INFO("Unsubscribed to Data char");
+                ble_fls_data_notify(false);
             }
-
-            p_fls->evt_handler(p_fls, &evt);
         }
     }
 }
@@ -76,10 +75,12 @@ static void on_fls_control_cccd_write(ble_fls_t*            p_fls,
             if (ble_srv_is_notification_enabled(p_evt_write->data))
             {
                 NRF_LOG_INFO("Subscribed to notification on Control char");
+                ble_fls_control_notify(true);
             }
             else
             {
                 NRF_LOG_INFO("Unsubscribed to Control char");
+                ble_fls_control_notify(false);
             }
         }
     }
@@ -130,13 +131,13 @@ static void on_write(ble_fls_t* p_fls, ble_evt_t* p_ble_evt)
 {
     ble_gatts_evt_write_t* p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
 
-    /* Peer un/subscribed to notifications on Data char? */
+    /* Peer un/subscribed to notifications on Data char */
     if (p_evt_write->handle == p_fls->data_handle.cccd_handle)
     {
         on_fls_data_cccd_write(p_fls, p_evt_write);
     }
 
-    /* Peer un/subscribed to notifications/indications on Control char? */
+    /* Peer un/subscribed to notifications/indications on Control char */
     if (p_evt_write->handle == p_fls->control_handle.cccd_handle)
     {
         on_fls_control_cccd_write(p_fls, p_evt_write);
@@ -218,67 +219,6 @@ void ble_fls_evt_handler(ble_fls_t* p_fls, ble_fls_evt_t* p_evt)
 }
 
 
-
-/**@brief Function for adding the FLS Processed Data characteristic.
- *
- * @param[in]   p_fls        FLSS structure.
- * @param[in]   p_fls_init   Information needed to initialize the service.
- *
- * @return      NRF_SUCCESS on success, otherwise an error code.
- */
-static uint32_t fls_data_char_add(ble_fls_t*            p_fls,
-                                             const ble_fls_init_t* p_fls_init)
-{
-    ble_gatts_char_md_t char_md;
-    ble_gatts_attr_md_t cccd_md;
-    ble_gatts_attr_t    attr_char_value;
-    ble_uuid_t          ble_uuid;
-    ble_gatts_attr_md_t attr_md;
-    uint8_t             data_packet[] = {0};
-
-    memset(&cccd_md, 0, sizeof(cccd_md));
-
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&cccd_md.read_perm);
-    cccd_md.write_perm =
-        p_fls_init->fls_data_attr_md.cccd_write_perm;
-    cccd_md.vloc = BLE_GATTS_VLOC_STACK;
-
-    memset(&char_md, 0, sizeof(char_md));
-
-    char_md.char_props.write  = 0;
-    char_md.char_props.notify = 1;
-    char_md.p_char_user_desc  = NULL;
-    char_md.p_char_pf         = NULL;
-    char_md.p_user_desc_md    = NULL;
-    char_md.p_cccd_md         = &cccd_md;
-    char_md.p_sccd_md         = NULL;
-
-    ble_uuid.type = p_fls->uuid_type;
-    ble_uuid.uuid = BLE_UUID_FLS_DATA_CHARACTERISTIC;
-
-    memset(&attr_md, 0, sizeof(attr_md));
-
-    attr_md.read_perm  = p_fls_init->fls_data_attr_md.read_perm;
-    attr_md.write_perm = p_fls_init->fls_data_attr_md.write_perm;
-    attr_md.vloc       = BLE_GATTS_VLOC_STACK;
-    attr_md.rd_auth    = 0;
-    attr_md.wr_auth    = 0;
-    attr_md.vlen       = 1;
-
-    memset(&attr_char_value, 0, sizeof(attr_char_value));
-
-    attr_char_value.p_uuid    = &ble_uuid;
-    attr_char_value.p_attr_md = &attr_md;
-    attr_char_value.init_len  = sizeof(fls_control_t);
-    attr_char_value.init_offs = 0;
-    attr_char_value.max_len   = MAX_FLS_LEN;
-    attr_char_value.p_value   = data_packet;
-
-    return sd_ble_gatts_characteristic_add(p_fls->service_handle, &char_md,
-                                           &attr_char_value,
-                                           &p_fls->data_handle);
-}
-
 /**
  * @brief Init FLS service
  * @details Add service and characteristics
@@ -315,7 +255,7 @@ uint32_t ble_fls_init(ble_fls_t* p_fls, const ble_fls_init_t* p_fls_init)
     APP_ERROR_CHECK(err_code);
 
     // Add Data characteristic
-    err_code = fls_data_char_add(p_fls, p_fls_init);
+    err_code = ble_fls_data_init(p_fls, p_fls_init);
     APP_ERROR_CHECK(err_code);
 
     return NRF_SUCCESS;

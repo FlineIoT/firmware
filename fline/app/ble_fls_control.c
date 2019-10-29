@@ -24,38 +24,41 @@ static uint8_t        count  = 0;
 
 static ble_fls_t* _fls_handle = NULL;
 
+static bool _notification_enabled = false;
+
 static uint32_t _send_command(void)
 {
-    uint32_t ret = NRF_SUCCESS;
+    uint32_t ret = NRF_ERROR_INVALID_STATE;
 
-    // TODO Check connection and if peer subscribed to notification o/ Control
-
-    while (count)
+    if(_fls_handle->conn_handle != BLE_CONN_HANDLE_INVALID && _notification_enabled)
     {
-        NRF_LOG_INFO("Sending opcode: 0x%02X", _cmd_buf[rd_idx].opcode);
-        ret = ble_fls_control_send(&_cmd_buf[rd_idx]);
-        if (ret != NRF_SUCCESS && ret != NRF_ERROR_INVALID_STATE)
+        while (count)
         {
-            NRF_LOG_WARNING("Control char update: 0x%X", ret);
-            return ret;  // come back later
+            NRF_LOG_INFO("Sending opcode: 0x%02X", _cmd_buf[rd_idx].opcode);
+            ret = ble_fls_control_send(&_cmd_buf[rd_idx]);
+            if (ret != NRF_SUCCESS && ret != NRF_ERROR_INVALID_STATE)
+            {
+                NRF_LOG_WARNING("Control char update: 0x%X", ret);
+                return ret;  // come back later
+            }
+            else if (ret == NRF_ERROR_INVALID_STATE)  // disconnected
+            {
+                NRF_LOG_ERROR("INVALID STATE. Reset FLS Control queue");
+
+                // Clear the queue
+                rd_idx = 0;
+                wr_idx = 0;
+                count  = 0;
+
+                return ret;
+            }
+
+            // Success, control packet can be removed from the queue
+            count--;
+            _increment_idx(rd_idx);
         }
-        else if (ret == NRF_ERROR_INVALID_STATE)  // disconnected
-        {
-            NRF_LOG_ERROR("INVALID STATE. Reset FLS Control queue");
-
-            // Clear the queue
-            rd_idx = 0;
-            wr_idx = 0;
-            count  = 0;
-
-            return ret;
-        }
-
-        // Success, control packet can be removed from the queue
-        count--;
-        _increment_idx(rd_idx);
     }
-
+    
     return ret;
 }
 
@@ -238,7 +241,7 @@ void ble_fls_control_evt_handler(ble_fls_t* p_fls, ble_fls_evt_t* p_evt)
  */
 uint32_t ble_fls_control_send(fls_control_t* ctrl_pkt)
 {
-    uint32_t err_code;
+    uint32_t err_code = NRF_ERROR_INVALID_STATE;
 
     // Send value if connected and notifying
     if (_fls_handle->conn_handle != BLE_CONN_HANDLE_INVALID)
@@ -261,10 +264,6 @@ uint32_t ble_fls_control_send(fls_control_t* ctrl_pkt)
         {
             err_code = NRF_ERROR_DATA_SIZE;
         }
-    }
-    else
-    {
-        err_code = NRF_ERROR_INVALID_STATE;
     }
 
     return err_code;
@@ -330,6 +329,10 @@ static uint32_t _control_char_add(ble_fls_t*            p_fls,
                                            &p_fls->control_handle);
 }
 
+void ble_fls_control_notify(bool en)
+{
+    _notification_enabled = en;
+}
 
 uint32_t ble_fls_control_init(ble_fls_t* p_fls, const ble_fls_init_t* p_fls_init)
 {
