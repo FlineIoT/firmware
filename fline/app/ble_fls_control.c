@@ -112,6 +112,27 @@ static uint32_t _resp_err(uint8_t opcode)
     return _queue_command((uint32_t)(opcode | FLS_CONTROL_RESPONSE_BIT), NULL, 0);
 }
 
+static uint32_t _resp_sys_rev()
+{
+    fline_rev_t rev;
+
+    rev.fw_major = FIRMWARE_VERSION_MAJOR;
+    rev.fw_minor = FIRMWARE_VERSION_MINOR;
+    rev.fw_patch = FIRMWARE_VERSION_PATCH;
+    rev.fw_type = FIRMWARE_TYPE;
+    rev.hw_rev = HARDWARE_REV;
+
+    // TODO get bootloader version
+    return _queue_command(FLS_CONTROL_RESPONSE_BIT | PERIPHERAL_SYS_REVISION, (uint8_t*)&rev,
+                          sizeof(fline_rev_t));
+}
+
+static uint32_t _resp_sys_serial()
+{
+    return _queue_command(FLS_CONTROL_RESPONSE_BIT | PERIPHERAL_SYS_SERIAL,
+                          (uint8_t*)NRF_FICR->DEVICEID, 2 * sizeof(uint32_t));
+}
+
 /**
  * @brief Packet written to the characteristic are going through this function
  * @details These packet can be written by either the peripheral (sent) or the
@@ -136,19 +157,34 @@ void ble_fls_control_evt_handler(ble_fls_t* p_fls, ble_fls_evt_t* p_evt)
     switch (ctrl_pkt->opcode)
     {
         case PERIPHERAL_SYS_TIME:
+            NRF_LOG_ERROR("Clock not implemented");
         break;
 
         case PERIPHERAL_SYS_UPTIME:
+            NRF_LOG_ERROR("Clock not implemented");
         break;
 
         case PERIPHERAL_SYS_REVISION:
-        break;
+            if (ctrl_pkt->len != 0)
+            {
+                _resp_err(ctrl_pkt->opcode);
+                break;
+            }
+            _resp_sys_rev();
+            break;
 
         case PERIPHERAL_SYS_SERIAL:
-        break;
+            if (ctrl_pkt->len != 0)
+            {
+                _resp_err(ctrl_pkt->opcode);
+                break;
+            }
+            _resp_sys_serial();
+            break;
 
         case PERIPHERAL_SYS_RESET:
-        break;
+            NVIC_SystemReset();
+            break;
 
         case PERIPHERAL_SYS_BOOTLOADER:
             if (ctrl_pkt->len > 1)
@@ -165,6 +201,7 @@ void ble_fls_control_evt_handler(ble_fls_t* p_fls, ble_fls_evt_t* p_evt)
 
             NVIC_SystemReset();
             break;
+
         default:break;
     }
 }
