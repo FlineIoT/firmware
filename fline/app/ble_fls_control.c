@@ -6,6 +6,7 @@
 #include "version.h"
 #include "app_scheduler.h"
 #include "ble_manager.h"
+#include "time.h"
 
 #define CONTROL_BUFF_SIZE 16
 
@@ -112,6 +113,15 @@ static uint32_t _resp_err(uint8_t opcode)
     return _queue_command((uint32_t)(opcode | FLS_CONTROL_RESPONSE_BIT), NULL, 0);
 }
 
+static uint32_t _resp_sys_uptime()
+{
+    uint32_t uptime;
+
+    uptime = time_get_uptime();
+    return _queue_command(FLS_CONTROL_RESPONSE_BIT | PERIPHERAL_SYS_UPTIME,
+                          (uint8_t*)&uptime, sizeof(uint32_t));
+}
+
 static uint32_t _resp_sys_rev()
 {
     fline_rev_t rev;
@@ -157,12 +167,22 @@ void ble_fls_control_evt_handler(ble_fls_t* p_fls, ble_fls_evt_t* p_evt)
     switch (ctrl_pkt->opcode)
     {
         case PERIPHERAL_SYS_TIME:
-            NRF_LOG_ERROR("Clock not implemented");
-        break;
+            if (ctrl_pkt->len != 4)
+            {
+                _resp_err(ctrl_pkt->opcode);
+                break;
+            }
+            time_set_time(unpack_uint32(ctrl_pkt->data));
+            break;
 
         case PERIPHERAL_SYS_UPTIME:
-            NRF_LOG_ERROR("Clock not implemented");
-        break;
+            if (ctrl_pkt->len != 0)
+            {
+                _resp_err(ctrl_pkt->opcode);
+                break;
+            }
+            _resp_sys_uptime();
+            break;
 
         case PERIPHERAL_SYS_REVISION:
             if (ctrl_pkt->len != 0)

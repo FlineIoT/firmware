@@ -63,6 +63,7 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/bsp/bsp.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp_btn_ble.c \
   $(PROJ_DIR)/main.c \
+  $(PROJ_DIR)/time.c \
   $(PROJ_DIR)/ble_manager.c \
   $(PROJ_DIR)/ble_fls.c \
   $(PROJ_DIR)/ble_fls_control.c \

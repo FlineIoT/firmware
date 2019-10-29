@@ -23,6 +23,7 @@
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
+#include "time.h"
 
 #define SCHED_MAX_EVENT_DATA_SIZE       APP_TIMER_SCHED_EVENT_DATA_SIZE             /**< Maximum size of scheduler events. */
 #define SCHED_QUEUE_SIZE                20                                          /**< Maximum number of events in the scheduler queue. */
@@ -138,6 +139,8 @@ int main(void)
     NRF_LOG_INFO("Fline v%u,%u,%u", FIRMWARE_VERSION_MAJOR, FIRMWARE_VERSION_MINOR, FIRMWARE_VERSION_PATCH);
 
     timers_init();
+    time_init();    // Internal clock init
+
     power_management_init();
     ble_stack_init();
     scheduler_init();
