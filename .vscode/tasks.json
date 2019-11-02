@@ -38,7 +38,7 @@
         },
         {
           "type": "shell",
-          "label": "bootloader compile",
+          "label": "bootloader_debug compile",
           "command": "make",
           "args": ["-j8", "bootloader_debug"],
           "options": {

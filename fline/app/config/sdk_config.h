@@ -11079,7 +11079,7 @@
 
 // <o> NRF_SDH_BLE_VS_UUID_COUNT - The number of vendor-specific UUIDs. 
 #ifndef NRF_SDH_BLE_VS_UUID_COUNT
-#define NRF_SDH_BLE_VS_UUID_COUNT 0
+#define NRF_SDH_BLE_VS_UUID_COUNT 1
 #endif
 
 // <q> NRF_SDH_BLE_SERVICE_CHANGED  - Include the Service Changed characteristic in the Attribute Table.
@@ -11531,7 +11531,14 @@
 #define PM_BLE_OBSERVER_PRIO 1
 #endif
 
+// <o> BLE_FLS_BLE_OBSERVER_PRIO
+// <i> Priority with which BLE events are dispatched to the Equisense service.
+
+#ifndef BLE_FLS_BLE_OBSERVER_PRIO
+#define BLE_FLS_BLE_OBSERVER_PRIO 2
+#endif
 // </h> 
+
 //==========================================================
 
 // </h> 

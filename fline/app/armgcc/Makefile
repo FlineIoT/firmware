@@ -63,13 +63,11 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/bsp/bsp.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp_btn_ble.c \
   $(PROJ_DIR)/main.c \
-  $(PROJ_DIR)/sigfox.c \
-  $(PROJ_DIR)/../common/drivers/ble_datas.c \
-  $(PROJ_DIR)/../common/drivers/SFM10R1.c \
-  $(PROJ_DIR)/../common/drivers/bme280.c \
-  $(PROJ_DIR)/../common/drivers/lis2dh12.c \
-  $(PROJ_DIR)/../common/drivers/esp8266.c \
-  $(PROJ_DIR)/../common/drivers/ui.c \
+  $(PROJ_DIR)/time.c \
+  $(PROJ_DIR)/ble_manager.c \
+  $(PROJ_DIR)/ble_fls.c \
+  $(PROJ_DIR)/ble_fls_control.c \
+  $(PROJ_DIR)/ble_fls_data.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
@@ -96,6 +94,14 @@ SRC_FILES += \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c 
+
+# Not used at the moment
+#  $(PROJ_DIR)/sigfox.c \
+#  $(PROJ_DIR)/../common/drivers/SFM10R1.c \
+#  $(PROJ_DIR)/../common/drivers/bme280.c \
+#  $(PROJ_DIR)/../common/drivers/lis2dh12.c \
+#  $(PROJ_DIR)/../common/drivers/esp8266.c \
+#  $(PROJ_DIR)/../common/drivers/ui.c \
 
 # Include folders common to all targets
 INC_FOLDERS += \
@@ -299,8 +305,8 @@ $(PROJ_DIR)/inc/version.h: $(SDK_ROOT)/.git/${current} $(SDK_ROOT)/version.ini
 
 prepare_version: $(PROJ_DIR)/inc/version.h
 
-app_debug: CFLAGS += -D__HEAP_SIZE=0 -D__STACK_SIZE=8192
-app_debug: ASMFLAGS += -D__HEAP_SIZE=0 -D__STACK_SIZE=8192
+app_debug: CFLAGS += -D__HEAP_SIZE=0 -D__STACK_SIZE=8192 -DDEBUG
+app_debug: ASMFLAGS += -D__HEAP_SIZE=0 -D__STACK_SIZE=8192 -DDEBUG
 app_debug: OUTPUT_FILENAME := app_debug
 app_debug: generate_bl_settings
 
@@ -333,7 +339,7 @@ $(foreach target, $(TARGETS), $(call define_target, $(target)))
 
 # Generate Bootloader settings
 BL_SETTINGS_VERSION := 2
-generate_bl_settings:
+generate_bl_settings: 
 	nrfutil settings generate --family NRF52 --application $(OUTPUT_DIRECTORY)/$(OUTPUT_FILENAME).hex --application-version $(APP_VERSION) --bootloader-version 1 --bl-settings-version $(BL_SETTINGS_VERSION) $(OUTPUT_DIRECTORY)/$(OUTPUT_FILENAME)_bl_settings.hex
 
 # Flash the program
