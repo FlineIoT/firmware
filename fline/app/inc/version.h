@@ -3,8 +3,8 @@
 
 /* clang-format off */
 #define     FIRMWARE_BRANCH_NAME_SIZE   12
-#define     FIRMWARE_BRANCH_NAME        "f/bootloader"
-#define     FIRMWARE_BRANCH_SHA         0xbbb3602d
+#define     FIRMWARE_BRANCH_NAME        "f/sigfox-wsg"
+#define     FIRMWARE_BRANCH_SHA         0xdf5e2f27
 
 #define     FIRMWARE_TYPE_DEV           0xFF
 #define     FIRMWARE_TYPE_PROD          0x00

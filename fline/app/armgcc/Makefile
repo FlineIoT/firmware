@@ -68,6 +68,8 @@ SRC_FILES += \
   $(PROJ_DIR)/ble_fls.c \
   $(PROJ_DIR)/ble_fls_control.c \
   $(PROJ_DIR)/ble_fls_data.c \
+  $(PROJ_DIR)/../common/drivers/WSG303.c \
+  $(PROJ_DIR)/sigfox.c 
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
@@ -93,11 +95,10 @@ SRC_FILES += \
   $(SDK_ROOT)/external/utf_converter/utf.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c \
-  $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c 
+  $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c \
 
 # Not used at the moment
-#  $(PROJ_DIR)/sigfox.c \
-#  $(PROJ_DIR)/../common/drivers/SFM10R1.c \
+#  $(PROJ_DIR)/../common/drivers/s2lp.c \
 #  $(PROJ_DIR)/../common/drivers/bme280.c \
 #  $(PROJ_DIR)/../common/drivers/lis2dh12.c \
 #  $(PROJ_DIR)/../common/drivers/esp8266.c \
