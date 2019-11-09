@@ -11,10 +11,7 @@
 
 #define MAX_TEST_DATA_BYTES     (15U)
 
-static bool _init = false;
-static bool _busy = false;
-
-void uart_error_handle(app_uart_evt_t * p_event)
+void WSG_uart_error_handle(app_uart_evt_t * p_event)
 {
     if (p_event->evt_type == APP_UART_COMMUNICATION_ERROR)
     {
@@ -26,7 +23,7 @@ void uart_error_handle(app_uart_evt_t * p_event)
     }
 }
 
-void uart_init(void)
+void WSG_uart_init(void)
 {
     uint32_t err_code;
 
@@ -56,7 +53,7 @@ void uart_init(void)
     APP_UART_FIFO_INIT(&comm_params,
                          UART_RX_BUF_SIZE,
                          UART_TX_BUF_SIZE,
-                         uart_error_handle,
+                         WSG_uart_error_handle,
                          APP_IRQ_PRIORITY_LOWEST,
                          err_code);
 
@@ -86,7 +83,7 @@ void cfg_bin_2_hexadecimal(const uint8_t *pBin, int binSize, char *pHexadecimal)
     *pHexadecimal = 0;
 }
 
-void uart_send_frame (uint8_array_t data) {
+void WSG_uart_send_frame (uint8_array_t data) {
     extern uint8_t payload[12 * 2 + 1]; //TODO: rely on data.size
     memset(payload, 0x00, sizeof(payload)); //TODO: rely on data.size
     cfg_bin_2_hexadecimal(data.p_data, data.size, (char *)payload);
@@ -96,16 +93,17 @@ void uart_send_frame (uint8_array_t data) {
     }
 }
 
-void WSG303s_send_test(){
+void WSG_send_test(){
+    const char * payload = "AT$Send_frame 1234 2 0";
     uint8_array_t data;
-    string payload = 'AT$Send_frame 1234 2 0';
-    data.p_data = ;
-    for (uint8_t i = 0; i < len; ++i) {
-        app_uart_put((uint8_t)'A');
-    }
+    data.p_data = (uint8_t *) payload;
+    /*for (uint8_t i = 0; i < sizeof(payload); ++i) {
+        app_uart_put((uint8_t)data[i]);
+    }*/
+    WSG_uart_send_frame(data);
 }
 
-bool SFM10R1_send(const void* data, uint8_t len) {
+bool WSG_send(const void* data, uint8_t len) {
 	uint8_t* bytes = (uint8_t*)data;
 
     /*if(!isReady()) {
@@ -126,15 +124,15 @@ bool SFM10R1_send(const void* data, uint8_t len) {
     }
     app_uart_put(';');
 
-    uint8_t ok = SFM10R1_nextReturn();
+    /*uint8_t ok = SFM10R1_nextReturn();
     if(ok == OK) {
         SFM10R1_nextReturn(); //SENT
         return true;
-    }
+    }*/
     return false;
 }
 
-unsigned long SFM10R1_getPac() {
+unsigned long WSG_getPac() {
     //app_uart_put((uint8_t)'\0');
     app_uart_put((uint8_t)'A');
     app_uart_put((uint8_t)'T');
@@ -176,7 +174,7 @@ unsigned long SFM10R1_getPac() {
     return id;
 }
 
-unsigned long SFM10R1_getID() {
+unsigned long WSG_getID() {
     //app_uart_put((uint8_t)'\0');
     app_uart_put((uint8_t)'A');
     app_uart_put((uint8_t)'T');

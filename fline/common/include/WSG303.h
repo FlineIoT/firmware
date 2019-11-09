@@ -37,16 +37,10 @@ uint8_t dummy;
 
 unsigned long _lastSend;
 
-typedef struct
-{
-    uint16_t  size;                 /**< Number of array entries. */
-    uint8_t * p_data;               /**< Pointer to array entries. */
-} uint8_array_t;
-
-void uart_error_handle(app_uart_evt_t * p_event);
-void uart_init(void);
-void uart_send_frame (uint8_array_t data);
-unsigned long SFM10R1_getPac();
-unsigned long SFM10R1_getID();
-void SFM10R1_send_test();
-bool SFM10R1_send(const void* data, uint8_t len);
+void WSG_uart_error_handle(app_uart_evt_t * p_event);
+void WSG_uart_init(void);
+void WSG_uart_send_frame (uint8_array_t data);
+unsigned long WSG_getPac();
+unsigned long WSG_etID();
+void WSG_send_test();
+bool WSG_send(const void* data, uint8_t len);
