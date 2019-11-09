@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import getopt
 import os
 import sys
