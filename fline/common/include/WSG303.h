@@ -12,8 +12,9 @@
 #include "nrf_drv_gpiote.h"
 #include "nrf_delay.h"
 #include "nrf_drv_wdt.h"
-//#include "nrf_drv_uart.h"
+#include "nrf_drv_uart.h"
 #include "app_uart.h"
+
 //#include "device_settings.h"
 
 #define MAX_TEST_DATA_BYTES     (15U)                /**< max number of test bytes to be used for tx and rx. */
@@ -39,8 +40,9 @@ unsigned long _lastSend;
 
 void WSG_uart_error_handle(app_uart_evt_t * p_event);
 void WSG_uart_init(void);
-void WSG_uart_send_frame (uint8_array_t data);
 unsigned long WSG_getPac();
-unsigned long WSG_etID();
+unsigned long WSG_getID();
+void WSG_send_old_fashioned(const void* data, uint8_t len);
+void WSG_uart_send_frame (uint8_array_t data);
 void WSG_send_test();
 bool WSG_send(const void* data, uint8_t len);

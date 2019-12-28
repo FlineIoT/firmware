@@ -24,6 +24,7 @@
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
 #include "time.h"
+#include "sigfox.h"
 
 #define SCHED_MAX_EVENT_DATA_SIZE       APP_TIMER_SCHED_EVENT_DATA_SIZE             /**< Maximum size of scheduler events. */
 #define SCHED_QUEUE_SIZE                20                                          /**< Maximum number of events in the scheduler queue. */
@@ -147,6 +148,10 @@ int main(void)
 
     /* Init BLE services */
     ble_mgr_init();
+
+    NRF_LOG_INFO("Pre sigfox_send_test");
+    sigfox_send_test();
+    NRF_LOG_INFO("Post sigfox_send_test");
 
     // Enter main loop.
     for (;;)

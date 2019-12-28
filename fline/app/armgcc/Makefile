@@ -51,7 +51,8 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52.c \
   $(SDK_ROOT)/components/boards/boards.c \
   $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_clock.c \
-  $(SDK_ROOT)/components/libraries/uart/app_uart_fifo.c \
+  $(SDK_ROOT)/components/libraries/uart/app_uart.c \
+  $(SDK_ROOT)/components/libraries/fifo/app_fifo.c \
   $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_uart.c \
   $(SDK_ROOT)/modules/nrfx/soc/nrfx_atomic.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_clock.c \
@@ -224,6 +225,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/usbd/class/hid/kbd \
   $(SDK_ROOT)/components/nfc/ndef/connection_handover/ep_oob_rec \
   $(SDK_ROOT)/external/segger_rtt \
+  $(SDK_ROOT)/components/libraries/fifo \
   $(SDK_ROOT)/components/libraries/atomic_fifo \
   $(SDK_ROOT)/components/ble/ble_services/ble_lbs_c \
   $(SDK_ROOT)/components/nfc/ndef/connection_handover/ble_pair_lib \
