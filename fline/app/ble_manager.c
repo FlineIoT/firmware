@@ -1,5 +1,7 @@
 #include "ble_manager.h"
 #include "ble_fls.h"
+#include "ble_bas.h"
+#include "ble_dis.h"
 
 #include "ble.h"
 #include "ble_hci.h"
@@ -24,6 +26,9 @@
 
 #define DEVICE_NAME                     "Luggie"                       /**< Name of device. Will be included in the advertising data. */
 #define MANUFACTURER_NAME               "Fline"                   /**< Manufacturer. Will be passed to Device Information Service. */
+#define MODEL_NUMBER                    "L1"
+#define MANUFACTURER_ID                 0xFFFF
+#define ORG_UNIQUE_ID                   0xFFFF
 
 #define APP_ADV_INTERVAL                1600                                     /**< The advertising interval (in units of 0.625 ms. This value corresponds to 1000 ms). */
 #define APP_ADV_DURATION                18000                                   /**< The advertising duration (180 seconds) in units of 10 milliseconds. */
@@ -51,7 +56,19 @@ NRF_BLE_QWR_DEF(m_qwr);                                                         
 BLE_ADVERTISING_DEF(m_advertising);                                             /**< Advertising module instance. */
 
 BLE_FLS_DEF(m_fls);     /* Fline service definition */ 
+BLE_BAS_DEF(m_bas);     /**< Structure used to identify the battery service. */
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
+
+typedef struct {
+    uint8_t fw_major;
+    uint8_t fw_minor;
+    uint8_t fw_patch;
+    uint8_t fw_type;
+    uint16_t fw_sha;
+    uint8_t hw_rev;
+    uint8_t bl_rev;
+    uint8_t fw_branch_name[10];
+} nv_rev_t;
 
 /* YOUR_JOB: Declare all services structure your application is using
  *  BLE_XYZ_DEF(m_xyz);
@@ -60,7 +77,9 @@ static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        
 // YOUR_JOB: Use UUIDs for service(s) used in your application.
 static ble_uuid_t m_adv_uuids[] =                                               /**< Universally unique service identifiers. */
 {
-    {BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE}
+    {BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE},
+	{BLE_UUID_BATTERY_SERVICE, BLE_UUID_TYPE_BLE},
+    {BLE_UUID_FLS_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN},
 };
 
 /**@brief Function for the GAP initialization.
@@ -137,6 +156,22 @@ static void on_yys_evt(ble_yy_service_t     * p_yy_service,
 }
 */
 
+
+/*******
+ BAT Service
+ ********/
+void ble_batt_level(uint8_t level)
+{
+    uint32_t err_code;
+    NRF_LOG_INFO("Battery level: %i", level);
+
+    err_code = ble_bas_battery_level_update(&m_bas, level, BLE_CONN_HANDLE_ALL);
+    if ((err_code != NRF_SUCCESS) && (err_code != NRF_ERROR_INVALID_STATE) && (err_code != NRF_ERROR_RESOURCES) && (err_code != BLE_ERROR_GATTS_SYS_ATTR_MISSING))
+    {
+        APP_ERROR_HANDLER(err_code);
+    }
+}
+
 /**@brief Function for initializing services that will be used by the application.
  */
 static void services_init(void)
@@ -144,6 +179,18 @@ static void services_init(void)
     ret_code_t         err_code;
     nrf_ble_qwr_init_t qwr_init = {0};
     ble_fls_init_t fls_init;
+    ble_bas_init_t bas_init;
+    ble_dis_init_t dis_init;
+    ble_dis_sys_id_t   sys_id;
+    char serial_str[10];
+    char fw_rev_str[10];
+    char hw_rev_str[3];
+    nv_rev_t *rev = NULL;
+
+    rev->fw_major = 0;
+    rev->fw_minor = 0;
+    rev->fw_patch = 4;
+    rev->hw_rev= 1;
 
     // Initialize Queued Write Module.
     qwr_init.error_handler = nrf_qwr_error_handler;
@@ -157,20 +204,56 @@ static void services_init(void)
 
     // Here the sec level for the Fline Service
     // Control characteristic
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(
-        &fls_init.fls_control_attr_md.cccd_write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&fls_init.fls_control_attr_md.cccd_write_perm);
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&fls_init.fls_control_attr_md.read_perm);
     BLE_GAP_CONN_SEC_MODE_SET_OPEN(&fls_init.fls_control_attr_md.write_perm);
 
     // Processed data characteristic
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(
-        &fls_init.fls_data_attr_md.cccd_write_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_OPEN(
-        &fls_init.fls_data_attr_md.read_perm);
-    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(
-        &fls_init.fls_data_attr_md.write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&fls_init.fls_data_attr_md.cccd_write_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_OPEN(&fls_init.fls_data_attr_md.read_perm);
+    BLE_GAP_CONN_SEC_MODE_SET_NO_ACCESS(&fls_init.fls_data_attr_md.write_perm);
 
     err_code = ble_fls_init(&m_fls, &fls_init);
+    APP_ERROR_CHECK(err_code);
+
+
+    /***** BAT service *****/
+    memset(&bas_init, 0, sizeof(bas_init));
+
+    // Here the sec level for the Battery Service can be changed/increased.
+    bas_init.bl_rd_sec        = SEC_OPEN;
+    bas_init.bl_cccd_wr_sec   = SEC_OPEN;
+    bas_init.bl_report_rd_sec = SEC_OPEN;
+
+    bas_init.evt_handler = NULL;
+    bas_init.support_notification = true;
+    bas_init.p_report_ref = NULL;
+    bas_init.initial_batt_level = 69; // TODO
+
+    err_code = ble_bas_init(&m_bas, &bas_init);
+    APP_ERROR_CHECK(err_code);
+
+
+    /***** DIS service *****/
+    memset(&dis_init, 0, sizeof(dis_init));
+    
+    sprintf(fw_rev_str, "%d.%d.%d", rev->fw_major, rev->fw_minor, rev->fw_patch);
+    sprintf(hw_rev_str, "%d", rev->hw_rev);
+    sprintf(serial_str, "0x%lx", NRF_FICR->DEVICEID[0]);
+
+    ble_srv_ascii_to_utf8(&dis_init.manufact_name_str, (char *)MANUFACTURER_NAME);  /**< Manufacturer Name String. */
+    ble_srv_ascii_to_utf8(&dis_init.model_num_str, (char *)MODEL_NUMBER);           /**< Model Number String. */
+    ble_srv_ascii_to_utf8(&dis_init.serial_num_str, (char *)serial_str);                /**< Serial Number String. */
+    ble_srv_ascii_to_utf8(&dis_init.hw_rev_str, (char*)hw_rev_str);                     /**< Hardware Revision String. */
+    ble_srv_ascii_to_utf8(&dis_init.fw_rev_str, (char *)fw_rev_str);                    /**< Firmware Revision String. */
+
+    sys_id.manufacturer_id            = MANUFACTURER_ID;
+    sys_id.organizationally_unique_id = ORG_UNIQUE_ID;
+    dis_init.p_sys_id                 = &sys_id;
+
+    dis_init.dis_char_rd_sec = SEC_OPEN;
+
+    err_code = ble_dis_init(&dis_init);
     APP_ERROR_CHECK(err_code);
 }
 
