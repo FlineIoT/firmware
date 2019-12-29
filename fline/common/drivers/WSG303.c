@@ -152,7 +152,7 @@ void WSG_send_test(){
 
 unsigned long WSG_getID() {
     //app_uart_put((uint8_t)'\0');
-    app_uart_put((uint8_t)'A');
+    /*app_uart_put((uint8_t)'A');
     app_uart_put((uint8_t)'T');
     app_uart_put((uint8_t)'$');
     app_uart_put((uint8_t)'G');
@@ -160,7 +160,18 @@ unsigned long WSG_getID() {
     app_uart_put((uint8_t)'t');
     app_uart_put((uint8_t)'_');
     app_uart_put((uint8_t)'I');
-    app_uart_put((uint8_t)'D');
+    app_uart_put((uint8_t)'D');*/
+    app_uart_put((uint8_t)'u');
+    app_uart_put((uint8_t)'s');
+    app_uart_put((uint8_t)'a');
+    app_uart_put((uint8_t)'g');
+    app_uart_put((uint8_t)'e');
+    app_uart_put((uint8_t)':');
+    app_uart_put((uint8_t)'h');
+    app_uart_put((uint8_t)'e');
+    app_uart_put((uint8_t)'l');
+    app_uart_put((uint8_t)'p');
+    app_uart_put((uint8_t)'\n');
     app_uart_put((uint8_t)'\r');
 
     //Response is [byte1, byte2, ..., byteN, 'O', 'K']
@@ -197,6 +208,7 @@ unsigned long WSG_getPac() {
     app_uart_put((uint8_t)'P');
     app_uart_put((uint8_t)'A');
     app_uart_put((uint8_t)'C');
+    app_uart_put((uint8_t)'\n');
     app_uart_put((uint8_t)'\r');
     //uint8_t * tx_data = (uint8_t *)("AT$I=11;");
     

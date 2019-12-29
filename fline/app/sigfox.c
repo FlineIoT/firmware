@@ -31,8 +31,10 @@ void sigfox_send_test(void)
 {
     NRF_LOG_INFO("Step 1: getID");
     WSG_getID();
+    nrf_delay_ms(100);
     NRF_LOG_INFO("Step 2: getPAC");
     WSG_getPac();
+    nrf_delay_ms(100);
     NRF_LOG_INFO("Step 3: sendTest");
     WSG_send_test();
 
@@ -40,9 +42,12 @@ void sigfox_send_test(void)
     payload.size = 2;
     payload.p_data = (uint8_t *)"59";
     NRF_LOG_INFO("Step 4: WSG_uart_send_frame");
+    nrf_delay_ms(100);
     WSG_uart_send_frame(payload);
     NRF_LOG_INFO("Step 5: WSG_send");
+    nrf_delay_ms(100);
     WSG_send("42", 2);
+    nrf_delay_ms(100);
     NRF_LOG_INFO("Step 6: WSG_send_old_fashioned");
     WSG_send_old_fashioned("43", 2);
 }
