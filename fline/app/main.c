@@ -149,6 +149,8 @@ int main(void)
     /* Init BLE services */
     ble_mgr_init();
 
+    NRF_LOG_INFO("Pre sigfox_init");
+    sigfox_init();
     NRF_LOG_INFO("Pre sigfox_send_test");
     sigfox_send_test();
     NRF_LOG_INFO("Post sigfox_send_test");

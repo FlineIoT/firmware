@@ -78,8 +78,8 @@ typedef struct {
 static ble_uuid_t m_adv_uuids[] =                                               /**< Universally unique service identifiers. */
 {
     {BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE},
-	{BLE_UUID_BATTERY_SERVICE, BLE_UUID_TYPE_BLE},
-    {BLE_UUID_FLS_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN},
+	/*{BLE_UUID_BATTERY_SERVICE, BLE_UUID_TYPE_BLE},
+    {BLE_UUID_FLS_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN},*/
 };
 
 /**@brief Function for the GAP initialization.
@@ -179,7 +179,7 @@ static void services_init(void)
     ret_code_t         err_code;
     nrf_ble_qwr_init_t qwr_init = {0};
     ble_fls_init_t fls_init;
-    ble_bas_init_t bas_init;
+    /*ble_bas_init_t bas_init;
     ble_dis_init_t dis_init;
     ble_dis_sys_id_t   sys_id;
     char serial_str[10];
@@ -190,7 +190,7 @@ static void services_init(void)
     rev->fw_major = 0;
     rev->fw_minor = 0;
     rev->fw_patch = 4;
-    rev->hw_rev= 1;
+    rev->hw_rev= 1;*/
 
     // Initialize Queued Write Module.
     qwr_init.error_handler = nrf_qwr_error_handler;
@@ -218,7 +218,7 @@ static void services_init(void)
 
 
     /***** BAT service *****/
-    memset(&bas_init, 0, sizeof(bas_init));
+    /*memset(&bas_init, 0, sizeof(bas_init));
 
     // Here the sec level for the Battery Service can be changed/increased.
     bas_init.bl_rd_sec        = SEC_OPEN;
@@ -234,18 +234,18 @@ static void services_init(void)
     APP_ERROR_CHECK(err_code);
 
 
-    /***** DIS service *****/
+    //////// DIS service ////////
     memset(&dis_init, 0, sizeof(dis_init));
     
     sprintf(fw_rev_str, "%d.%d.%d", rev->fw_major, rev->fw_minor, rev->fw_patch);
     sprintf(hw_rev_str, "%d", rev->hw_rev);
     sprintf(serial_str, "0x%lx", NRF_FICR->DEVICEID[0]);
 
-    ble_srv_ascii_to_utf8(&dis_init.manufact_name_str, (char *)MANUFACTURER_NAME);  /**< Manufacturer Name String. */
-    ble_srv_ascii_to_utf8(&dis_init.model_num_str, (char *)MODEL_NUMBER);           /**< Model Number String. */
-    ble_srv_ascii_to_utf8(&dis_init.serial_num_str, (char *)serial_str);                /**< Serial Number String. */
-    ble_srv_ascii_to_utf8(&dis_init.hw_rev_str, (char*)hw_rev_str);                     /**< Hardware Revision String. */
-    ble_srv_ascii_to_utf8(&dis_init.fw_rev_str, (char *)fw_rev_str);                    /**< Firmware Revision String. */
+    ble_srv_ascii_to_utf8(&dis_init.manufact_name_str, (char *)MANUFACTURER_NAME);  //  Manufacturer Name String. 
+    ble_srv_ascii_to_utf8(&dis_init.model_num_str, (char *)MODEL_NUMBER);           //< Model Number String. 
+    ble_srv_ascii_to_utf8(&dis_init.serial_num_str, (char *)serial_str);                //< Serial Number String. 
+    ble_srv_ascii_to_utf8(&dis_init.hw_rev_str, (char*)hw_rev_str);                     //< Hardware Revision String. 
+    ble_srv_ascii_to_utf8(&dis_init.fw_rev_str, (char *)fw_rev_str);                    //< Firmware Revision String. 
 
     sys_id.manufacturer_id            = MANUFACTURER_ID;
     sys_id.organizationally_unique_id = ORG_UNIQUE_ID;
@@ -254,7 +254,7 @@ static void services_init(void)
     dis_init.dis_char_rd_sec = SEC_OPEN;
 
     err_code = ble_dis_init(&dis_init);
-    APP_ERROR_CHECK(err_code);
+    APP_ERROR_CHECK(err_code);*/
 }
 
 
