@@ -261,7 +261,7 @@ current := $(shell cut -c6- $(SDK_ROOT)/.git/HEAD)
 # version.h regenerated only if new commit or version.ini has changed.
 $(PROJ_DIR)/inc/version.h: $(SDK_ROOT)/.git/${current} $(SDK_ROOT)/version.ini
 	@echo Preparing version $(APP_MAJOR).$(APP_MINOR).$(APP_PATCH)
-	python $(SDK_ROOT)/utils/code/gen_version.py -v $(APP_MAJOR).$(APP_MINOR).$(APP_PATCH) -f ../../../version.ini
+	python $(SDK_ROOT)/utils/code/gen_version.py -f ../../../version.ini -i $(PROJ_DIR)/inc/version.h -v $(APP_MAJOR).$(APP_MINOR).$(APP_PATCH)
 
 prepare_version: $(PROJ_DIR)/inc/version.h
 
