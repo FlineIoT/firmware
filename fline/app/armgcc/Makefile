@@ -63,6 +63,7 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_spim.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp_btn_ble.c \
+  $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_spi.c \
   $(PROJ_DIR)/main.c \
   $(PROJ_DIR)/time.c \
   $(PROJ_DIR)/ble_manager.c \
@@ -70,6 +71,7 @@ SRC_FILES += \
   $(PROJ_DIR)/ble_fls_control.c \
   $(PROJ_DIR)/ble_fls_data.c \
   $(PROJ_DIR)/../common/drivers/WSG303.c \
+  $(PROJ_DIR)/../common/drivers/bme280.c \
   $(PROJ_DIR)/sigfox.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \

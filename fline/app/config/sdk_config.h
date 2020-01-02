@@ -7208,7 +7208,7 @@
  
 
 #ifndef NRF_SPI_MNGR_ENABLED
-#define NRF_SPI_MNGR_ENABLED 0
+#define NRF_SPI_MNGR_ENABLED 1
 #endif
 
 // <q> NRF_STRERROR_ENABLED  - nrf_strerror - Library for converting error code to string.

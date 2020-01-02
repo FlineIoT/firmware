@@ -195,6 +195,7 @@ extern "C" {
 
 #define M2S_GPIO_IRQ_PIN            S2LP_GPIO3_PIN
 
+#define SPIM_PRESENT
 
 // Fline Board Breakout v0
 #define WSG303S_RX_PIN              2

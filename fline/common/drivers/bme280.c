@@ -42,20 +42,20 @@ extern void spi_init(void)
 {
     /* Conigure SPI Interface */
     nrf_drv_spi_config_t spi_config = NRF_DRV_SPI_DEFAULT_CONFIG;
-    spi_config.sck_pin = SPIM0_SCK_PIN;
-    spi_config.miso_pin = SPIM0_MISO_PIN;
-    spi_config.mosi_pin = SPIM0_MOSI_PIN;
+    spi_config.sck_pin = SPI_SCK_PIN;
+    spi_config.miso_pin = SPI_MISO_PIN;
+    spi_config.mosi_pin = SPI_MOSI_PIN;
     spi_config.frequency = NRF_DRV_SPI_FREQ_4M;
 
     /* Init chipselect for BME280 */
-    nrf_gpio_pin_dir_set(SPIM0_SS_HUMI_PIN, NRF_GPIO_PIN_DIR_OUTPUT);
-    nrf_gpio_cfg_output(SPIM0_SS_HUMI_PIN);
-    nrf_gpio_pin_set(SPIM0_SS_HUMI_PIN);
+    nrf_gpio_pin_dir_set(SPI_SS_PIN_BME, NRF_GPIO_PIN_DIR_OUTPUT);
+    nrf_gpio_cfg_output(SPI_SS_PIN_BME);
+    nrf_gpio_pin_set(SPI_SS_PIN_BME);
 
     /* Init chipselect for LIS2DS12 */
-    nrf_gpio_pin_dir_set(SPIM0_SS_ACC_PIN, NRF_GPIO_PIN_DIR_OUTPUT);
-    nrf_gpio_cfg_output(SPIM0_SS_ACC_PIN);
-    nrf_gpio_pin_set(SPIM0_SS_ACC_PIN);
+    nrf_gpio_pin_dir_set(SPI_SS_PIN_LIS, NRF_GPIO_PIN_DIR_OUTPUT);
+    nrf_gpio_cfg_output(SPI_SS_PIN_LIS);
+    nrf_gpio_pin_set(SPI_SS_PIN_LIS);
 
     APP_ERROR_CHECK(nrf_drv_spi_init(&spi, &spi_config, spi_event_handler, NULL));
 
@@ -83,7 +83,7 @@ extern SPI_Ret spi_transfer_bme280(uint8_t* const p_toWrite, uint8_t count, uint
 	{
         spi_xfer_done = false;
 
-        nrf_gpio_pin_clear(SPIM0_SS_HUMI_PIN);
+        nrf_gpio_pin_clear(SPI_SS_PIN_BME);
         APP_ERROR_CHECK(nrf_drv_spi_transfer(&spi, p_toWrite, count, p_toRead, count));
         while (!spi_xfer_done)
         {
@@ -92,7 +92,7 @@ extern SPI_Ret spi_transfer_bme280(uint8_t* const p_toWrite, uint8_t count, uint
             APP_ERROR_CHECK(err_code);
             //__WFE(); 
         }
-        nrf_gpio_pin_set(SPIM0_SS_HUMI_PIN);
+        nrf_gpio_pin_set(SPI_SS_PIN_BME);
         retVal = SPI_RET_OK;
 	}
 	else

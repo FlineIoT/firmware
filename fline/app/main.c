@@ -11,6 +11,7 @@
 #include "nrf.h"
 #include "app_error.h"
 #include "ble.h"
+#include "nrf_delay.h"
 #include "nrf_sdh.h"
 #include "nrf_sdh_soc.h"
 #include "nrf_sdh_ble.h"
@@ -25,6 +26,7 @@
 #include "nrf_log_default_backends.h"
 #include "time.h"
 #include "sigfox.h"
+#include "bme280.h"
 
 #define SCHED_MAX_EVENT_DATA_SIZE       APP_TIMER_SCHED_EVENT_DATA_SIZE             /**< Maximum size of scheduler events. */
 #define SCHED_QUEUE_SIZE                20                                          /**< Maximum number of events in the scheduler queue. */
@@ -154,6 +156,50 @@ int main(void)
     NRF_LOG_INFO("Pre sigfox_send_test");
     sigfox_send_test();
     NRF_LOG_INFO("Post sigfox_send_test");
+
+
+
+
+    nrf_delay_ms(200);
+    NRF_LOG_INFO("BME280 Init");
+    
+    BME280_Ret BME280RetVal = bme280_init();
+    if (BME280_RET_OK == BME280RetVal) {
+        NRF_LOG_INFO("BME280 init Done\r\n");
+    }
+    else {
+        NRF_LOG_ERROR("BME280 init Failed: Error Code: %d\r\n", (int32_t)BME280RetVal); 
+    }
+
+    //setup BME280 if present
+    uint8_t conf = bme280_read_reg(BME280REG_CTRL_MEAS);
+    NRF_LOG_INFO("CONFIG: %x\r\n", conf);
+
+    bme280_set_oversampling_hum(BME280_OVERSAMPLING_1);
+    bme280_set_oversampling_temp(BME280_OVERSAMPLING_1);
+    bme280_set_oversampling_press(BME280_OVERSAMPLING_1);
+
+    conf = bme280_read_reg(BME280REG_CTRL_MEAS);
+    //NRF_LOG_INFO("CONFIG: %x\r\n", conf);
+    //Start sensor read for next pass
+    bme280_set_mode(BME280_MODE_FORCED);
+    NRF_LOG_INFO("BME280 configuration done\r\n");
+
+    static int32_t raw_t  = 0;
+    static uint32_t raw_p = 0;
+    static uint32_t raw_h = 0;
+
+    // Get raw environmental data
+    raw_t = bme280_get_temperature();
+    raw_p = bme280_get_pressure() * 0.003906; // (/25600*100);
+    raw_h = bme280_get_humidity() * 0.097656;// (/1024*100)
+
+    bme280_set_mode(BME280_MODE_SLEEP);
+    //SFM10R1_send(&raw_t, sizeof(raw_t));
+
+    NRF_LOG_INFO("temperature: %d, pressure: %d, humidity: %d \r\n", raw_t, raw_p, raw_h);
+
+
 
     // Enter main loop.
     for (;;)
