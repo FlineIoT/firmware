@@ -158,8 +158,6 @@ int main(void)
     NRF_LOG_INFO("Post sigfox_send_test");
 
 
-
-
     nrf_delay_ms(200);
     NRF_LOG_INFO("BME280 Init");
     
@@ -189,17 +187,18 @@ int main(void)
     static uint32_t raw_p = 0;
     static uint32_t raw_h = 0;
 
-    // Get raw environmental data
-    raw_t = bme280_get_temperature();
-    raw_p = bme280_get_pressure() * 0.003906; // (/25600*100);
-    raw_h = bme280_get_humidity() * 0.097656;// (/1024*100)
 
-    bme280_set_mode(BME280_MODE_SLEEP);
-    //SFM10R1_send(&raw_t, sizeof(raw_t));
+    for(int i = 0; i <=5; i++)
+    {
 
-    NRF_LOG_INFO("temperature: %d, pressure: %d, humidity: %d \r\n", raw_t, raw_p, raw_h);
+        NRF_LOG_INFO("Reading BME 280 values: \n");
+        raw_t = bme280_get_temperature();
+        raw_p = bme280_get_pressure() * 0.003906; // (/25600*100);
+        raw_h = bme280_get_humidity() * 0.097656;// (/1024*100)
+        //bme280_set_mode(BME280_MODE_SLEEP);
 
-
+        NRF_LOG_INFO("temperature: %d, pressure: %d, humidity: %d \r\n", raw_t, raw_p, raw_h);
+    }
 
     // Enter main loop.
     for (;;)

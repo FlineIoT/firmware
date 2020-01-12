@@ -84,9 +84,6 @@ void cfg_bin_2_hexadecimal(const uint8_t *pBin, int binSize, char *pHexadecimal)
 }
 
 void WSG_send_header_old(void) {
-    app_uart_put((uint8_t)'A');
-    app_uart_put((uint8_t)'T');
-    app_uart_put((uint8_t)'$');
     app_uart_put((uint8_t)'S');
     app_uart_put((uint8_t)'e');
     app_uart_put((uint8_t)'n');
@@ -120,7 +117,7 @@ void WSG_uart_send_frame (const char* data, uint16_t size) {
 }
 
 void WSG_send_test(){
-    const char * payload = "AT$Send_frame 1234 2 0\n";
+    const char * payload = "Send_frame 1234 2 0\n";
     uint8_array_t data;
     data.p_data = (uint8_t *) payload;
     for (uint8_t i = 0; i < 23; ++i) {
@@ -132,9 +129,6 @@ void WSG_send_test(){
 
 unsigned long WSG_getID() {
     //app_uart_put((uint8_t)'\0');
-    app_uart_put((uint8_t)'A');
-    app_uart_put((uint8_t)'T');
-    app_uart_put((uint8_t)'$');
     app_uart_put((uint8_t)'G');
     app_uart_put((uint8_t)'e');
     app_uart_put((uint8_t)'t');
@@ -168,9 +162,6 @@ unsigned long WSG_getID() {
 
 unsigned long WSG_getPac() {
     //app_uart_put((uint8_t)'\0');
-    app_uart_put((uint8_t)'A');
-    app_uart_put((uint8_t)'T');
-    app_uart_put((uint8_t)'$');
     app_uart_put((uint8_t)'G');
     app_uart_put((uint8_t)'e');
     app_uart_put((uint8_t)'t');
@@ -202,9 +193,6 @@ unsigned long WSG_getPac() {
 }
 
 void WSG_reset() {
-    app_uart_put((uint8_t)'A');
-    app_uart_put((uint8_t)'T');
-    app_uart_put((uint8_t)'$');
     app_uart_put((uint8_t)'R');
     app_uart_put((uint8_t)'e');
     app_uart_put((uint8_t)'s');
@@ -214,9 +202,6 @@ void WSG_reset() {
 }
 
 void WSG_help() {
-    app_uart_put((uint8_t)'A');
-    app_uart_put((uint8_t)'T');
-    app_uart_put((uint8_t)'$');
     app_uart_put((uint8_t)'h');
     app_uart_put((uint8_t)'e');
     app_uart_put((uint8_t)'l');

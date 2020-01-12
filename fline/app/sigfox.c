@@ -29,11 +29,11 @@ void sigfox_init(void)
 
 void sigfox_send_test(void)
 {
-    NRF_LOG_INFO("Step 1: Reset");
+    /*NRF_LOG_INFO("Step 1: Reset");
     WSG_reset();
     nrf_delay_ms(50);
     NRF_LOG_INFO("Step 2: help");
-    WSG_help();
+    WSG_help();*/
     nrf_delay_ms(50);
     NRF_LOG_INFO("Step 3: getID");
     WSG_getID();
@@ -47,7 +47,7 @@ void sigfox_send_test(void)
     NRF_LOG_INFO("Step 5: WSG_uart_send_frame");
     nrf_delay_ms(100);
     WSG_uart_send_frame("42", 2);
-    nrf_delay_ms(50);
+    nrf_delay_ms(10000);
     NRF_LOG_INFO("Step 6: WSG_send_test");
     WSG_send_test();
 }
