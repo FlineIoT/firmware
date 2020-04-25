@@ -34,8 +34,12 @@
 #define APP_BLE_OBSERVER_PRIO           3                                       /**< Application's BLE observer priority. You shouldn't need to modify this value. */
 
 #define DEAD_BEEF                       0xDEADBEEF                              /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
+#define MAIN_INTERVAL_MS                2000 //Should be 630000
 
-
+APP_TIMER_DEF(main_wakeup_timer_id);
+APP_TIMER_DEF(main_sec_tick_timer_id);
+bool main_wakeup_evt_expired = false;
+uint8_t   m_main_sec_tick;
 
 
 /**@brief Callback function for asserts in the SoftDevice.
@@ -132,6 +136,55 @@ static void idle_state_handle(void)
     }
 }
 
+static void main_sec_tick_timer_handler(void * p_context)
+{
+    m_main_sec_tick++;
+    //cPrintLog(CDBG_MAIN_LOG, "main_sec_tick_timer_handler\n");
+    /*if (send_state) {
+        uint8_t payload_data[12];
+        for (int i=0; i<=11; i++){
+            payload_data[i]=0x12;
+        }
+        send_state = false;
+        Sigfox_send_payload(payload_data);
+    }*/
+}
+
+static void main_sec_tick_timer_init(void)
+{
+    uint32_t err_code;
+
+    err_code = app_timer_create(&main_sec_tick_timer_id, APP_TIMER_MODE_REPEATED, main_sec_tick_timer_handler);
+    APP_ERROR_CHECK(err_code);
+    err_code = app_timer_start(main_sec_tick_timer_id, APP_TIMER_TICKS(1000), NULL);
+    APP_ERROR_CHECK(err_code);
+
+}
+
+static void main_wakeup_timer_timeout_handler(void * p_context)
+{
+    NRF_LOG_INFO("Wakeup timer expired\n");
+    main_wakeup_evt_expired = true;
+}
+
+static void main_wakeup_timer_init(void)
+{
+    uint32_t err_code;
+    err_code = app_timer_create(&main_wakeup_timer_id, APP_TIMER_MODE_REPEATED, main_wakeup_timer_timeout_handler);
+    APP_ERROR_CHECK(err_code);
+
+}
+static void main_wakeup_timer_start(uint32_t msec)
+{
+    uint32_t err_code;
+    uint32_t timeout_ticks; 
+
+    timeout_ticks = APP_TIMER_TICKS(msec);
+    NRF_LOG_INFO("Wakeup start ticks:%d\n", timeout_ticks);
+    err_code = app_timer_start(main_wakeup_timer_id, timeout_ticks, NULL);  //timer to wake up every 600s
+    APP_ERROR_CHECK(err_code);
+
+}
 
 /**@brief Function for application main entry.
  */
@@ -200,9 +253,19 @@ int main(void)
         NRF_LOG_INFO("temperature: %d, pressure: %d, humidity: %d \r\n", raw_t, raw_p, raw_h);
     }
 
+    main_wakeup_timer_init();
+    main_sec_tick_timer_init();
+    main_wakeup_timer_start(MAIN_INTERVAL_MS);  // Here you shoud set up a timer to wake up every 618s
+
     // Enter main loop.
     for (;;)
     {
+        if (main_wakeup_evt_expired) { //Able to send sigfox message
+            NRF_LOG_INFO("Timer expired temperature: %d, pressure: %d, humidity: %d \r\n", raw_t, raw_p, raw_h);
+            main_wakeup_evt_expired=false;
+            break; 
+            
+        }
         idle_state_handle();
     }
 }
