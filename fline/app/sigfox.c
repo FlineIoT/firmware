@@ -46,7 +46,7 @@ void sigfox_send_test(void)
 
     NRF_LOG_INFO("Step 5: WSG_uart_send_frame");
     nrf_delay_ms(100);
-    WSG_uart_send_frame("42", 2);
+    WSG_uart_send_frame("42", 2, true);
     nrf_delay_ms(10000);
     NRF_LOG_INFO("Step 6: WSG_send_test");
     WSG_send_test();

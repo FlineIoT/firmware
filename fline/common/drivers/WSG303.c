@@ -97,23 +97,27 @@ void WSG_send_header_old(void) {
     app_uart_put((uint8_t)' ');
 }
 
-void WSG_send_footer_old(void) {
+//0 for DL, 1 for UL
+void WSG_send_footer_old(bool is_downlink) {
     app_uart_put((uint8_t)' ');
     app_uart_put((uint8_t)'2'); //repetitions
     app_uart_put((uint8_t)' ');
-    app_uart_put((uint8_t)'1'); //0 for DL, 1 for UL
+    if (is_downlink) {
+        app_uart_put((uint8_t)'0');
+    } else {
+        app_uart_put((uint8_t)'1');
+    }
     app_uart_put((uint8_t)'\n');
     app_uart_put((uint8_t)'\r');
 }
 
-
-void WSG_uart_send_frame (const char* data, uint16_t size) {
+void WSG_uart_send_frame(const char* data, uint16_t size, bool is_downlink) {
 	uint8_t* bytes = (uint8_t*)data;
     WSG_send_header_old();
     for (uint8_t i = 0; i < size; ++i) {
         app_uart_put((uint8_t)bytes[i]);
     }
-    WSG_send_footer_old();
+    WSG_send_footer_old(is_downlink);
 }
 
 void WSG_send_test(){

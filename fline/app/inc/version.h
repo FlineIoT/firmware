@@ -4,7 +4,7 @@
 /* clang-format off */
 #define     FIRMWARE_BRANCH_NAME_SIZE   12
 #define     FIRMWARE_BRANCH_NAME        "f/sigfox-wsg"
-#define     FIRMWARE_BRANCH_SHA         0x78d4083c
+#define     FIRMWARE_BRANCH_SHA         0xf2680fd1
 
 #define     FIRMWARE_TYPE_DEV           0xFF
 #define     FIRMWARE_TYPE_PROD          0x00

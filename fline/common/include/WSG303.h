@@ -42,7 +42,7 @@ void WSG_uart_error_handle(app_uart_evt_t * p_event);
 void WSG_uart_init(void);
 unsigned long WSG_getPac();
 unsigned long WSG_getID();
-void WSG_uart_send_frame (const char* data, uint16_t size);
+void WSG_uart_send_frame(const char* data, uint16_t size, bool is_downlink);
 void WSG_send_test();
 void WSG_reset();
 void WSG_help();
