@@ -1,7 +1,4 @@
-// Axsem library
-
-#ifndef _SFM10R1_H
-#define _SFM10R1_H
+#pragma once
 
 #include "app_util_platform.h"
 #include <math.h>
@@ -15,8 +12,9 @@
 #include "nrf_drv_gpiote.h"
 #include "nrf_delay.h"
 #include "nrf_drv_wdt.h"
-//#include "nrf_drv_uart.h"
+#include "nrf_drv_uart.h"
 #include "app_uart.h"
+
 //#include "device_settings.h"
 
 #define MAX_TEST_DATA_BYTES     (15U)                /**< max number of test bytes to be used for tx and rx. */
@@ -30,27 +28,21 @@
     RTS 5
 */
 
-    enum RETURN_CODE {
-        OK = 'O',
-        KO = 'K',
-        SENT = 'S'
-    };
+enum RETURN_CODE {
+    OK = 'O',
+    KO = 'K',
+    SENT = 'S'
+};
 
-    uint8_t dummy;
+uint8_t dummy;
 
-    unsigned long _lastSend;
+unsigned long _lastSend;
 
-    //uint8_t _nextReturn();
-
-void uart_error_handle(app_uart_evt_t * p_event);
-void uart_init(void);
-void SFM10R1_begin();
-bool SFM10R1_isReady();
-void SFM10R1_send_test();
-bool SFM10R1_send(const void* data, uint8_t len);
-unsigned long SFM10R1_getPac();
-unsigned long SFM10R1_getID();
-bool SFM10R1_setPower(uint8_t power);
-uint8_t SFM10R1_nextReturn();
-
-#endif
+void WSG_uart_error_handle(app_uart_evt_t * p_event);
+void WSG_uart_init(void);
+unsigned long WSG_getPac();
+unsigned long WSG_getID();
+void WSG_uart_send_frame(const char* data, uint16_t size, bool is_downlink);
+void WSG_send_test();
+void WSG_reset();
+void WSG_help();

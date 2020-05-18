@@ -34,7 +34,7 @@ increment_minor:
 	python utils/code/gen_version.py -m
 
 increment_patch:
-	python utils/code/gen_version.py -p
+	python utils/code/gen_version.py -p -f version.ini
 
 new_version: increment_patch
 	git pull

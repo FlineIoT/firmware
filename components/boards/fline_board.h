@@ -102,7 +102,6 @@ extern "C" {
 #define LED_GREEN 2 
 #define LED_BLUE 27
 
-
 #define SPIS_MISO_PIN   28  // SPI MISO signal.
 #define SPIS_CSN_PIN    12  // SPI CSN signal.
 #define SPIS_MOSI_PIN   25  // SPI MOSI signal.
@@ -180,6 +179,8 @@ extern "C" {
 #define ARDUINO_A4_PIN              30    // Analog channel 4
 #define ARDUINO_A5_PIN              31    // Analog channel 5
 
+
+// S2LP Tests
 #define S2LP_SDN_PIN                ARDUINO_7_PIN   // 18 
 
 #define S2LP_SCLK_PIN               ARDUINO_3_PIN   // 14
@@ -193,6 +194,34 @@ extern "C" {
 #define S2LP_GPIO3_PIN              ARDUINO_A5_PIN  // 31
 
 #define M2S_GPIO_IRQ_PIN            S2LP_GPIO3_PIN
+
+#define SPIM_PRESENT
+
+// Fline Board Breakout v0
+#define WSG303S_RX_PIN              2
+#define WSG303S_TX_PIN              3
+
+#define ESP8266_TX_PIN              23
+#define ESP8266_RX_PIN              24
+
+#define SPI_SCK_PIN                 4
+#define SPI_MOSI_PIN                8 //Might be the opposite, is SDA
+#define SPI_MISO_PIN                5 //Might be the opposite, is SD0
+#define SPI_SS_PIN_BME              7
+
+#define SPI_SS_PIN_LIS              6
+#define LIS2DH12_INT1               9    
+
+#define LIPO_RIDER_EN_BAT           17
+#define LED_RGB_PIN_1               26
+#define LED_RGB_PIN_2               25
+
+#define GPIO_PIN_2                  12
+#define GPIO_PIN_3                  13
+#define GPIO_PIN_4                  10
+#define GPIO_PIN_5                  19
+#define GPIO_PIN_6                  11
+#define GPIO_PIN_7                  14
 
 #ifdef __cplusplus
 }

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import getopt
 import os
 import sys
@@ -24,12 +23,12 @@ def main(argv):
         opts, args = getopt.getopt(argv, "v:i:hmpf:", ["version="])
 
     except getopt.GetoptError:
-        print help
+        print(help)
 
     if opts != None:
         for opt, arg in opts:
             if opt == '-h':
-                print help
+                print(help)
                 sys.exit()
             elif opt in ("-v", "--version"):
                 app_version = arg
@@ -45,9 +44,9 @@ def main(argv):
     path, fl = os.path.split(os.path.realpath(__file__))
     script_path = os.path.join(path, '')
 
-    #choose the version.ini path if passed in argument
     if path_version_ini == '':
-        ini_file = open(script_path + "../../version.ini", 'r')
+        print("ERROR: version.ini path is missing")
+        sys.exit(0)
     else:
         ini_file = open(path_version_ini, 'r')
 
@@ -66,7 +65,12 @@ def main(argv):
             firmware_patch = "0"
 
         if increment_patch:
-            firmware_patch = str(int(firmware_patch) + 2 )
+            firmware_patch = str(int(firmware_patch) + 1 )
+
+        if not increment_minor and not increment_patch:
+            print("Nothing to be done.")
+            print(help)
+            sys.exit(0)
 
     else:
         # Parse app version
@@ -77,27 +81,26 @@ def main(argv):
             firmware_minor = app_version_list.pop()
             firmware_major = app_version_list.pop()
         else:
-            print "ERROR: Version must match the pattern major.minor.patch"
+            print("ERROR: Version must match the pattern major.minor.patch")
             sys.exit(0)
 
-    #choose the version.ini path if passed in argument
-    if path_version_ini == '':
-        ini_file = open(script_path + "../../version.ini", 'w')
-    else:
-        ini_file = open(path_version_ini, 'w')
+    ini_file = open(path_version_ini, 'w')
+    print("Writing new version {}.{}.{} into version.ini".format(firmware_major, firmware_minor, firmware_patch))
     #write major, minor, patch and bl version to version.ini
     ini_file.writelines("[version]" + "\nmajor=" + firmware_major + "\nminor=" + firmware_minor + "\npatch=" + firmware_patch + "\nbl=" + bl_version + "\nhw=" + hw_rev)
     ini_file.close()
+    if path_version_h == '' and (increment_patch or increment_minor):
+        print("Job done without generating a new version.h file (path missing)")
+        sys.exit(0)
 
-    #choose the version.h path if passed in argument
     if path_version_h == '':
-        header_file = open(script_path + "../../fline/app/inc/version.h", 'w')
+        print("ERROR: version.h path is missing")
+        sys.exit()
     else:
         header_file = open(path_version_h, 'w')
 
     #update version.h
     header_file.seek(0)
-
 
     header_file.write( "#ifndef VERSION_H__\n")
     header_file.write( "#define VERSION_H__\n")
@@ -107,18 +110,18 @@ def main(argv):
     proc=subprocess.Popen('git rev-parse --abbrev-ref HEAD', shell=True, stdout=subprocess.PIPE, )
     build=proc.communicate()[0]
     branch_len = len(build.rstrip())
-    header_file.write( "#define     FIRMWARE_BRANCH_NAME_SIZE   " + str(branch_len) + "\n")
-    header_file.write( "#define     FIRMWARE_BRANCH_NAME        \"" + build.rstrip()[:branch_len] + "\"\n")
+    header_file.write( "#define     FIRMWARE_BRANCH_NAME_SIZE   {}\n".format(str(branch_len)))
+    header_file.write( "#define     FIRMWARE_BRANCH_NAME        \"{}\"\n".format(build.rstrip()[:branch_len]))
     proc=subprocess.Popen('git rev-parse HEAD', shell=True, stdout=subprocess.PIPE, )
     build=proc.communicate()[0]
-    header_file.write( "#define     FIRMWARE_BRANCH_SHA         0x" + build.rstrip()[:8] + "\n")
+    header_file.write( "#define     FIRMWARE_BRANCH_SHA         0x{}\n".format(build.rstrip()[:8]))
     header_file.write( "\n")
     header_file.write( "#define     FIRMWARE_TYPE_DEV           0xFF\n")
     header_file.write( "#define     FIRMWARE_TYPE_PROD          0x00\n")
     header_file.write( "\n")
-    header_file.write( "#define     FIRMWARE_VERSION_MAJOR      " + firmware_major + "\n")
-    header_file.write( "#define     FIRMWARE_VERSION_MINOR      " + firmware_minor + "\n")
-    header_file.write( "#define     FIRMWARE_VERSION_PATCH      " + firmware_patch + "\n")
+    header_file.write( "#define     FIRMWARE_VERSION_MAJOR      {}\n".format(firmware_major))
+    header_file.write( "#define     FIRMWARE_VERSION_MINOR      {}\n".format(firmware_minor))
+    header_file.write( "#define     FIRMWARE_VERSION_PATCH      {}\n".format(firmware_patch))
     header_file.write( "\n")
     header_file.write( "#ifdef DEBUG\n")
     header_file.write( "\t#define     FIRMWARE_TYPE       FIRMWARE_TYPE_DEV\n")
@@ -126,13 +129,12 @@ def main(argv):
     header_file.write( "\t#define     FIRMWARE_TYPE       FIRMWARE_TYPE_PROD\n")
     header_file.write( "#endif\n")
     header_file.write( "\n")
-    header_file.write( "#define     HARDWARE_REV                " + hw_rev + " \n")
+    header_file.write( "#define     HARDWARE_REV                {}\n".format(hw_rev))
     header_file.write( "/* clang-format on */")
     header_file.write( "\n")
     header_file.write( "#endif\n")
 
-    print "Version set to " + firmware_major + "." + firmware_minor + "." + firmware_patch + "."
-    print "WARN: Please compile the sources from scratch."
+    print("\033[32mVersion set to {}.{}.{}\033[0m".format(firmware_major, firmware_minor, firmware_patch))
 
 if __name__ == '__main__':
     main(sys.argv[1:])
